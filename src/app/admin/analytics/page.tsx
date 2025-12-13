@@ -43,10 +43,10 @@ const AdminAnalyticsPage: React.FC = () => {
   ];
 
   const topPerformingProjects = [
-    { name: 'Solar Farm California', revenue: 18500, investors: 215, roi: 15.0 },
-    { name: 'Wind Power Texas', revenue: 16200, investors: 387, roi: 14.2 },
-    { name: 'Amazon Reforestation', revenue: 12800, investors: 142, roi: 12.5 },
-    { name: 'EV Charging Network', revenue: 11900, investors: 189, roi: 16.5 }
+    { name: 'Solar Farm California', revenue: 18500, investors: 215 },
+    { name: 'Wind Power Texas', revenue: 16200, investors: 387 },
+    { name: 'Amazon Reforestation', revenue: 12800, investors: 142 },
+    { name: 'EV Charging Network', revenue: 11900, investors: 189 }
   ];
 
   const userActivityMetrics = {
@@ -286,7 +286,7 @@ const AdminAnalyticsPage: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-green-600">${(project.revenue / 1000).toFixed(1)}K</p>
-                        <p className="text-sm text-gray-600">ROI: {project.roi}%</p>
+                        <p className="text-sm text-gray-600">Revenue</p>
                       </div>
                     </div>
                   ))}

@@ -42,7 +42,7 @@ export interface Investment {
   projectId: string;
   projectName: string;
   amount: number;
-  roi: number;
+  returns: number;
   carbonCredits: number;
   status: 'active' | 'pending' | 'completed';
   date: string;
@@ -233,7 +233,7 @@ export const mockInvestments: Investment[] = [
     projectId: '1',
     projectName: 'Amazon Rainforest Reforestation',
     amount: 1000,
-    roi: 125,
+    returns: 125,
     carbonCredits: 25,
     status: 'active',
     date: '2024-01-14'
@@ -244,7 +244,7 @@ export const mockInvestments: Investment[] = [
     projectId: '2',
     projectName: 'Solar Energy Farm - California',
     amount: 2500,
-    roi: 375,
+    returns: 375,
     carbonCredits: 80,
     status: 'active',
     date: '2024-01-12'
@@ -255,7 +255,7 @@ export const mockInvestments: Investment[] = [
     projectId: '3',
     projectName: 'Wind Power Initiative - Texas',
     amount: 1500,
-    roi: 213,
+    returns: 213,
     carbonCredits: 60,
     status: 'active',
     date: '2024-01-08'
@@ -266,7 +266,7 @@ export const mockInvestments: Investment[] = [
     projectId: '6',
     projectName: 'Electric Vehicle Charging Network',
     amount: 500,
-    roi: 82.50,
+    returns: 82.50,
     carbonCredits: 14,
     status: 'pending',
     date: '2024-01-05'

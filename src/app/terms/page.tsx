@@ -82,7 +82,7 @@ const TermsOfServicePage: React.FC = () => {
               <ul className="mb-4 ml-6 list-disc space-y-2 text-gray-700">
                 <li>You acknowledge that all investments carry risk</li>
                 <li>Past performance does not guarantee future results</li>
-                <li>Projected ROI figures are estimates, not guarantees</li>
+                <li>Projected returns are estimates, not guarantees</li>
                 <li>You are responsible for your investment decisions</li>
                 <li>Investments may be subject to lock-up periods</li>
                 <li>Early withdrawal may result in penalties or fees</li>

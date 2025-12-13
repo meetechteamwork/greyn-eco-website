@@ -12,7 +12,6 @@ interface Project {
   status: 'active' | 'pending' | 'completed' | 'rejected';
   fundingGoal: number;
   currentFunding: number;
-  roi: number;
   startDate: string;
   investorCount: number;
   carbonImpact: string;
@@ -31,7 +30,6 @@ const AdminProjectsPage: React.FC = () => {
       status: 'active',
       fundingGoal: 100000,
       currentFunding: 75000,
-      roi: 12.5,
       startDate: '2024-01-15',
       investorCount: 142,
       carbonImpact: '500 tons CO₂/year'
@@ -43,7 +41,6 @@ const AdminProjectsPage: React.FC = () => {
       status: 'active',
       fundingGoal: 250000,
       currentFunding: 180000,
-      roi: 15.0,
       startDate: '2024-02-01',
       investorCount: 215,
       carbonImpact: '800 tons CO₂/year'
@@ -55,7 +52,6 @@ const AdminProjectsPage: React.FC = () => {
       status: 'active',
       fundingGoal: 500000,
       currentFunding: 420000,
-      roi: 14.2,
       startDate: '2024-01-20',
       investorCount: 387,
       carbonImpact: '1,200 tons CO₂/year'
@@ -67,7 +63,6 @@ const AdminProjectsPage: React.FC = () => {
       status: 'pending',
       fundingGoal: 150000,
       currentFunding: 95000,
-      roi: 10.8,
       startDate: '2024-03-01',
       investorCount: 98,
       carbonImpact: '300 tons plastic'
@@ -79,7 +74,6 @@ const AdminProjectsPage: React.FC = () => {
       status: 'active',
       fundingGoal: 80000,
       currentFunding: 62000,
-      roi: 11.5,
       startDate: '2024-02-15',
       investorCount: 76,
       carbonImpact: '150 tons CO₂/year'
@@ -91,7 +85,6 @@ const AdminProjectsPage: React.FC = () => {
       status: 'pending',
       fundingGoal: 300000,
       currentFunding: 245000,
-      roi: 16.5,
       startDate: '2024-03-10',
       investorCount: 189,
       carbonImpact: '650 tons CO₂/year'
@@ -103,7 +96,6 @@ const AdminProjectsPage: React.FC = () => {
       status: 'completed',
       fundingGoal: 120000,
       currentFunding: 120000,
-      roi: 13.2,
       startDate: '2023-11-01',
       investorCount: 167,
       carbonImpact: '400 tons CO₂/year'
@@ -115,7 +107,6 @@ const AdminProjectsPage: React.FC = () => {
       status: 'rejected',
       fundingGoal: 800000,
       currentFunding: 45000,
-      roi: 18.0,
       startDate: '2024-03-05',
       investorCount: 42,
       carbonImpact: '2,000 tons CO₂/year'
@@ -284,7 +275,6 @@ const AdminProjectsPage: React.FC = () => {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Category</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Funding</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">ROI</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Investors</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
                   </tr>
@@ -320,9 +310,6 @@ const AdminProjectsPage: React.FC = () => {
                               />
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="font-semibold text-green-600">{project.roi}%</span>
                         </td>
                         <td className="px-6 py-4">
                           <span className="text-sm text-gray-700">{project.investorCount}</span>

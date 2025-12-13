@@ -52,7 +52,7 @@ const WalletPage: React.FC = () => {
       id: '4',
       type: 'return',
       amount: 125,
-      description: 'ROI from Amazon Reforestation',
+      description: 'Return from Amazon Reforestation',
       date: '2025-01-10',
       status: 'completed'
     },
@@ -76,7 +76,7 @@ const WalletPage: React.FC = () => {
       id: '7',
       type: 'return',
       amount: 375,
-      description: 'ROI from Solar Energy Farm',
+      description: 'Return from Solar Energy Farm',
       date: '2025-01-03',
       status: 'completed'
     },
