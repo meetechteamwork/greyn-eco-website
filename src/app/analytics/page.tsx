@@ -36,16 +36,15 @@ const AnalyticsPage: React.FC = () => {
   ];
 
   const topPerformers = [
-    { name: 'Solar Energy Farm - California', roi: 15.0, growth: '+12%', status: 'up' },
-    { name: 'Electric Vehicle Charging Network', roi: 16.5, growth: '+18%', status: 'up' },
-    { name: 'Wind Power Initiative - Texas', roi: 14.2, growth: '+9%', status: 'up' },
-    { name: 'Amazon Rainforest Reforestation', roi: 12.5, growth: '+7%', status: 'up' }
+    { name: 'Solar Energy Farm - California', growth: '+12%', status: 'up' },
+    { name: 'Electric Vehicle Charging Network', growth: '+18%', status: 'up' },
+    { name: 'Wind Power Initiative - Texas', growth: '+9%', status: 'up' },
+    { name: 'Amazon Rainforest Reforestation', growth: '+7%', status: 'up' }
   ];
 
   const stats = {
     totalValue: 6187.50,
     totalReturns: 687.50,
-    avgROI: 12.5,
     totalCarbonCredits: 142.75,
     growthRate: '+15.3%',
     projectsCount: 4
@@ -84,7 +83,7 @@ const AnalyticsPage: React.FC = () => {
             <div className="rounded-2xl bg-white p-6 shadow-lg">
               <p className="mb-1 text-sm font-medium text-gray-600">Total Returns</p>
               <p className="text-3xl font-bold text-gray-900">${stats.totalReturns.toLocaleString()}</p>
-              <p className="mt-2 text-sm text-green-600">+{stats.avgROI}% Avg ROI</p>
+              <p className="mt-2 text-sm text-green-600">From {stats.projectsCount} projects</p>
             </div>
 
             <div className="rounded-2xl bg-white p-6 shadow-lg">
@@ -230,7 +229,7 @@ const AnalyticsPage: React.FC = () => {
                         </div>
                         <div>
                           <p className="font-semibold text-gray-900">{project.name}</p>
-                          <p className="text-sm text-gray-600">ROI: {project.roi}%</p>
+                          <p className="text-sm text-gray-600">Active project</p>
                         </div>
                       </div>
                       <div className="text-right">
