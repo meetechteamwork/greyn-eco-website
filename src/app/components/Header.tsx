@@ -16,14 +16,22 @@ const Header: React.FC = () => {
   // Legacy admin check (keeping for existing admin pages)
   const isAdmin = false; // Can be enabled if needed
 
-  const primaryNavLinks = [
+  // Base navigation links (visible to all)
+  const baseNavLinks = [
     { label: 'Home', href: '/' },
     { label: 'Projects', href: '/projects' },
     { label: 'Products', href: '/products' },
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Analytics', href: '/analytics' },
-    { label: 'Wallet', href: '/wallet' }
+    { label: 'Dashboard', href: '/dashboard' }
   ];
+
+  // Activity Bar link (only for simple users)
+  const activityLink = isSimpleUser ? [{ label: 'Activity Bar', href: '/activities' }] : [];
+
+  // Wallet link (only for ENGO users)
+  const walletLink = isENGO ? [{ label: 'Wallet', href: '/wallet' }] : [];
+
+  // Combine navigation links (Analytics merged into Dashboard for simple users)
+  const primaryNavLinks = [...baseNavLinks, ...activityLink, ...walletLink];
 
   const adminMenuLinks = [
     { label: 'Admin Dashboard', href: '/admin', icon: '📊' },
