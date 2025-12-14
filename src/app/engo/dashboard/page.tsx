@@ -267,7 +267,11 @@ const ENGODashboardPage: React.FC = () => {
                       fill="none"
                       stroke="url(#revenueGradient)"
                       strokeWidth="3"
-                      points={revenueData.map((d, i) => `${(i / (revenueData.length - 1)) * 380 + 10},${200 - (d.revenue / maxRevenue) * 180}`).join(' ')}
+                      points={revenueData.map((d, i) => {
+                        const x = Math.round(((i / (revenueData.length - 1)) * 380 + 10) * 100) / 100;
+                        const y = Math.round((200 - (d.revenue / maxRevenue) * 180) * 100) / 100;
+                        return `${x},${y}`;
+                      }).join(' ')}
                     />
                     {/* Investor line */}
                     <polyline
@@ -275,7 +279,11 @@ const ENGODashboardPage: React.FC = () => {
                       stroke="url(#investorGradient)"
                       strokeWidth="3"
                       strokeDasharray="5,5"
-                      points={revenueData.map((d, i) => `${(i / (revenueData.length - 1)) * 380 + 10},${200 - (d.investors / maxInvestors) * 180}`).join(' ')}
+                      points={revenueData.map((d, i) => {
+                        const x = Math.round(((i / (revenueData.length - 1)) * 380 + 10) * 100) / 100;
+                        const y = Math.round((200 - (d.investors / maxInvestors) * 180) * 100) / 100;
+                        return `${x},${y}`;
+                      }).join(' ')}
                     />
                     <defs>
                       <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -389,12 +397,23 @@ const ENGODashboardPage: React.FC = () => {
                         const angle = (category.percentage / 100) * 360;
                         const endAngle = startAngle + angle;
                         
-                        const x1 = 100 + 80 * Math.cos((startAngle - 90) * Math.PI / 180);
-                        const y1 = 100 + 80 * Math.sin((startAngle - 90) * Math.PI / 180);
-                        const x2 = 100 + 80 * Math.cos((endAngle - 90) * Math.PI / 180);
-                        const y2 = 100 + 80 * Math.sin((endAngle - 90) * Math.PI / 180);
+                        // Round to 2 decimal places to prevent hydration mismatch
+                        const x1 = Math.round((100 + 80 * Math.cos((startAngle - 90) * Math.PI / 180)) * 100) / 100;
+                        const y1 = Math.round((100 + 80 * Math.sin((startAngle - 90) * Math.PI / 180)) * 100) / 100;
+                        const x2 = Math.round((100 + 80 * Math.cos((endAngle - 90) * Math.PI / 180)) * 100) / 100;
+                        const y2 = Math.round((100 + 80 * Math.sin((endAngle - 90) * Math.PI / 180)) * 100) / 100;
                         
                         const largeArc = angle > 180 ? 1 : 0;
+                        
+                        // Pre-calculate color to avoid string operations during render
+                        const getColor = (colorStr: string) => {
+                          const color = colorStr.replace('bg-', '').split('-')[0];
+                          if (color === 'green') return '#10b981';
+                          if (color === 'yellow') return '#eab308';
+                          if (color === 'blue') return '#3b82f6';
+                          if (color === 'cyan') return '#06b6d4';
+                          return '#a855f7';
+                        };
                         
                         return {
                           angle: endAngle,
@@ -403,10 +422,7 @@ const ENGODashboardPage: React.FC = () => {
                             <path
                               key={index}
                               d={`M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                              fill={category.color.replace('bg-', '').split('-')[0] === 'green' ? '#10b981' :
-                                    category.color.replace('bg-', '').split('-')[0] === 'yellow' ? '#eab308' :
-                                    category.color.replace('bg-', '').split('-')[0] === 'blue' ? '#3b82f6' :
-                                    category.color.replace('bg-', '').split('-')[0] === 'cyan' ? '#06b6d4' : '#a855f7'}
+                              fill={getColor(category.color)}
                               className="transition-all hover:opacity-80"
                             />
                           ]
