@@ -1,11 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useAuth } from '../../context/AuthContext';
 
 interface Activity {
   id: string;
+  userId: string;
   type: string;
   title: string;
   description: string;
@@ -14,10 +18,22 @@ interface Activity {
   status: 'pending' | 'verified' | 'unverified';
   submittedDate: string;
   verifiedDate?: string;
+  adminNotes?: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number; // in credits
+  image: string;
+  description: string;
 }
 
 const ActivitiesPage: React.FC = () => {
+  const router = useRouter();
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
+  const [showProducts, setShowProducts] = useState(false);
   const [formData, setFormData] = useState({
     type: 'plant-tree',
     title: '',
@@ -26,51 +42,84 @@ const ActivitiesPage: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Dummy data - in real app, this would come from API/context
-  const [activities, setActivities] = useState<Activity[]>([
-    {
-      id: '1',
-      type: 'plant-tree',
-      title: 'Planted 5 Trees in Local Park',
-      description: 'Planted 5 native trees in the community park and watered them regularly.',
-      proofImage: '/api/placeholder/400/300',
-      credits: 50,
-      status: 'verified',
-      submittedDate: '2024-01-15',
-      verifiedDate: '2024-01-16'
-    },
-    {
-      id: '2',
-      type: 'cleanup',
-      title: 'Beach Cleanup Activity',
-      description: 'Organized beach cleanup and collected 20kg of plastic waste.',
-      proofImage: '/api/placeholder/400/300',
-      credits: 75,
-      status: 'verified',
-      submittedDate: '2024-01-20',
-      verifiedDate: '2024-01-21'
-    },
-    {
-      id: '3',
-      type: 'recycle',
-      title: 'Recycling Program',
-      description: 'Started recycling program in neighborhood, collected 100kg recyclables.',
-      proofImage: '/api/placeholder/400/300',
-      credits: 30,
-      status: 'pending',
-      submittedDate: '2024-01-25'
+  // Load activities from localStorage (in real app, this would be API)
+  const [activities, setActivities] = useState<Activity[]>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(`activities_${user?.id}`);
+      return stored ? JSON.parse(stored) : [];
     }
-  ]);
+    return [];
+  });
 
-  const [totalCredits] = useState(155); // Sum of verified activities
+  // Calculate total credits from verified activities
+  const totalCredits = activities
+    .filter(a => a.status === 'verified')
+    .reduce((sum, a) => sum + a.credits, 0);
+
+  // Mock products available for purchase with credits
+  const products: Product[] = [
+    {
+      id: 'eco-tiles-l',
+      name: 'EcoTiles (L)',
+      price: 50,
+      image: 'https://images.unsplash.com/photo-1503389152951-9f343605f61e?auto=format&fit=crop&w=900&q=80',
+      description: 'Upcycled ocean plastic with marble finish. 12 × 6 inch tiles.'
+    },
+    {
+      id: 'eco-pots-s',
+      name: 'EcoPots (S)',
+      price: 30,
+      image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80',
+      description: 'Self-watering planter crafted from recycled HDPE. Hexa 5".'
+    },
+    {
+      id: 'eco-pots-l',
+      name: 'EcoPots (L)',
+      price: 75,
+      image: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80',
+      description: 'Matte finish planter ideal for succulents & bonsai. Hexa 9".'
+    },
+    {
+      id: 'eco-brick',
+      name: 'EcoBricks',
+      price: 25,
+      image: 'https://images.unsplash.com/photo-1507963541651-e3b9e1de9f47?auto=format&fit=crop&w=900&q=80',
+      description: 'Ready-to-lay structural blocks with 65% recycled fill. 8 × 4 inch.'
+    },
+    {
+      id: 'eco-panels',
+      name: 'EcoPanels',
+      price: 60,
+      image: 'https://images.unsplash.com/photo-1505692794400-5e0b0c18bad3?auto=format&fit=crop&w=900&q=80',
+      description: 'Modular wall panels pressed from post-consumer plastic. 24 × 24 inch.'
+    }
+  ];
+
+  // Save activities to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user?.id) {
+      localStorage.setItem(`activities_${user.id}`, JSON.stringify(activities));
+      // Listen for verification updates from admin
+      const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === `admin_activities_update`) {
+          const updatedActivities = JSON.parse(e.newValue || '[]');
+          setActivities(updatedActivities.filter((a: Activity) => a.userId === user.id));
+        }
+      };
+      window.addEventListener('storage', handleStorageChange);
+      return () => window.removeEventListener('storage', handleStorageChange);
+    }
+  }, [activities, user?.id]);
 
   const activityTypes = [
-    { value: 'plant-tree', label: '🌳 Plant Tree', credits: 50, description: 'Plant trees and provide proof' },
-    { value: 'cleanup', label: '🧹 Cleanup Activity', credits: 75, description: 'Organize or participate in cleanup' },
-    { value: 'recycle', label: '♻️ Recycling', credits: 30, description: 'Recycle materials and document' },
-    { value: 'energy-save', label: '⚡ Energy Saving', credits: 25, description: 'Save energy and show proof' },
-    { value: 'water-conserve', label: '💧 Water Conservation', credits: 40, description: 'Conserve water activities' },
-    { value: 'education', label: '📚 Environmental Education', credits: 60, description: 'Educate others about environment' }
+    { value: 'plant-tree', label: '🌳 Plant Tree', credits: 50, description: 'Plant trees and provide proof with photos' },
+    { value: 'cleanup', label: '🧹 Cleanup Activity', credits: 75, description: 'Organize or participate in beach/park/street cleanup' },
+    { value: 'recycle', label: '♻️ Recycling', credits: 30, description: 'Recycle materials and document the process' },
+    { value: 'energy-save', label: '⚡ Energy Saving', credits: 25, description: 'Implement energy-saving measures and show proof' },
+    { value: 'water-conserve', label: '💧 Water Conservation', credits: 40, description: 'Install water-saving devices or practices' },
+    { value: 'education', label: '📚 Environmental Education', credits: 60, description: 'Educate others about environmental issues' },
+    { value: 'compost', label: '🍃 Composting', credits: 35, description: 'Start composting and document the process' },
+    { value: 'bike-walk', label: '🚴 Bike/Walk Commute', credits: 20, description: 'Use eco-friendly transportation methods' }
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -86,23 +135,35 @@ const ActivitiesPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.proofImage || !user) return;
+
     setIsSubmitting(true);
 
     // Simulate API call
     setTimeout(() => {
       const selectedType = activityTypes.find(t => t.value === formData.type);
+      const imageUrl = URL.createObjectURL(formData.proofImage!);
+      
       const newActivity: Activity = {
-        id: Date.now().toString(),
+        id: `act_${Date.now()}`,
+        userId: user.id,
         type: formData.type,
         title: formData.title,
         description: formData.description,
-        proofImage: URL.createObjectURL(formData.proofImage!),
+        proofImage: imageUrl,
         credits: selectedType?.credits || 0,
         status: 'pending',
         submittedDate: new Date().toISOString().split('T')[0]
       };
 
-      setActivities(prev => [newActivity, ...prev]);
+      const updatedActivities = [newActivity, ...activities];
+      setActivities(updatedActivities);
+      
+      // Also update the admin activities list
+      const adminActivities = JSON.parse(localStorage.getItem('admin_pending_activities') || '[]');
+      adminActivities.push(newActivity);
+      localStorage.setItem('admin_pending_activities', JSON.stringify(adminActivities));
+
       setFormData({
         type: 'plant-tree',
         title: '',
@@ -111,20 +172,48 @@ const ActivitiesPage: React.FC = () => {
       });
       setShowForm(false);
       setIsSubmitting(false);
-      alert('Activity submitted successfully! Admin will review it soon.');
+      
+      alert('✅ Activity submitted successfully! Admin will review it soon. You\'ll receive credits once verified.');
     }, 1500);
+  };
+
+  const handlePurchaseProduct = (product: Product) => {
+    if (totalCredits < product.price) {
+      alert(`❌ Insufficient credits! You need ${product.price} credits but only have ${totalCredits}.`);
+      return;
+    }
+
+    if (confirm(`Purchase ${product.name} for ${product.price} credits? You will have ${totalCredits - product.price} credits remaining.`)) {
+      // In real app, this would be an API call
+      alert(`🎉 Successfully purchased ${product.name}! Your order will be processed soon.`);
+      // Navigate to products page for order details
+      router.push(`/products/payment?product=${product.id}&name=${encodeURIComponent(product.name)}&price=${product.price} credits`);
+    }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'verified':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-green-50 border-green-200';
       case 'unverified':
-        return 'bg-red-100 text-red-700 border-red-200';
+        return 'bg-red-50 border-red-200';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-yellow-50 border-yellow-200';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-gray-50 border-gray-200';
+    }
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'verified':
+        return 'bg-green-100 text-green-700 border-green-300';
+      case 'unverified':
+        return 'bg-red-100 text-red-700 border-red-300';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
@@ -157,7 +246,7 @@ const ActivitiesPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Credits Summary Card */}
+          {/* Credits Summary Cards */}
           <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 p-8 text-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
               <div className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-white/10"></div>
@@ -200,18 +289,85 @@ const ActivitiesPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Submit Activity Button */}
-          <div className="mb-8 flex justify-end">
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          {/* Action Buttons */}
+          <div className="mb-8 flex flex-wrap gap-4 justify-between">
+            <div className="flex gap-4">
+              <button
+                onClick={() => { setShowForm(!showForm); setShowProducts(false); }}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+              >
+                <svg className="h-5 w-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M12 4v16m8-8H4"></path>
+                </svg>
+                {showForm ? 'Cancel' : 'Submit New Activity'}
+              </button>
+              <button
+                onClick={() => { setShowProducts(!showProducts); setShowForm(false); }}
+                className="flex items-center gap-2 rounded-xl border-2 border-emerald-600 bg-white px-6 py-3 text-sm font-semibold text-emerald-600 transition-all hover:bg-emerald-50"
+              >
+                <svg className="h-5 w-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+                {showProducts ? 'Hide Products' : 'Buy Products with Credits'}
+              </button>
+            </div>
+            <Link
+              href="/products"
+              className="flex items-center gap-2 rounded-xl border-2 border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50"
             >
-              <svg className="h-5 w-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M12 4v16m8-8H4"></path>
+              Browse All Products
+              <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
               </svg>
-              {showForm ? 'Cancel' : 'Submit New Activity'}
-            </button>
+            </Link>
           </div>
+
+          {/* Product Purchase Section */}
+          {showProducts && (
+            <div className="mb-12 rounded-2xl bg-white p-8 shadow-lg">
+              <h2 className="mb-6 text-2xl font-bold text-gray-900">Purchase Products with Credits</h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {products.map((product) => {
+                  const canAfford = totalCredits >= product.price;
+                  return (
+                    <div
+                      key={product.id}
+                      className={`rounded-xl border-2 overflow-hidden transition-all hover:shadow-lg ${
+                        canAfford ? 'border-gray-200' : 'border-gray-100 opacity-60'
+                      }`}
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-48 w-full object-cover"
+                      />
+                      <div className="p-4">
+                        <h3 className="mb-2 text-lg font-bold text-gray-900">{product.name}</h3>
+                        <p className="mb-4 text-sm text-gray-600">{product.description}</p>
+                        <div className="mb-4 flex items-center justify-between">
+                          <span className="text-lg font-bold text-emerald-600">{product.price} Credits</span>
+                          {!canAfford && (
+                            <span className="text-xs text-red-600 font-semibold">Need {product.price - totalCredits} more</span>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handlePurchaseProduct(product)}
+                          disabled={!canAfford}
+                          className={`w-full rounded-lg py-2 px-4 font-semibold transition-all ${
+                            canAfford
+                              ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:shadow-lg'
+                              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          }`}
+                        >
+                          {canAfford ? 'Purchase with Credits' : 'Insufficient Credits'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Activity Submission Form */}
           {showForm && (
@@ -267,7 +423,7 @@ const ActivitiesPage: React.FC = () => {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={4}
-                    placeholder="Describe your activity in detail..."
+                    placeholder="Describe your activity in detail. Include location, date, and any relevant information..."
                     className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     required
                   />
@@ -290,9 +446,11 @@ const ActivitiesPage: React.FC = () => {
                     <label htmlFor="proof-image" className="cursor-pointer">
                       {formData.proofImage ? (
                         <div className="space-y-2">
-                          <svg className="mx-auto h-12 w-12 text-emerald-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                          </svg>
+                          <img
+                            src={URL.createObjectURL(formData.proofImage)}
+                            alt="Preview"
+                            className="mx-auto h-32 w-auto rounded-lg object-cover"
+                          />
                           <p className="text-sm font-medium text-gray-900">{formData.proofImage.name}</p>
                           <p className="text-xs text-gray-500">Click to change</p>
                         </div>
@@ -351,6 +509,14 @@ const ActivitiesPage: React.FC = () => {
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-green-500">Activities</p>
                 <h2 className="text-2xl font-bold text-gray-900">Your Activity History</h2>
               </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setActivities([...activities].sort((a, b) => new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime()))}
+                  className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Sort by Date
+                </button>
+              </div>
             </div>
 
             {activities.length === 0 ? (
@@ -360,6 +526,12 @@ const ActivitiesPage: React.FC = () => {
                 </svg>
                 <p className="mt-4 text-lg font-semibold text-gray-900">No activities yet</p>
                 <p className="mt-2 text-gray-600">Start by submitting your first eco-friendly activity!</p>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="mt-4 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+                >
+                  Submit Your First Activity
+                </button>
               </div>
             ) : (
               <div className="space-y-6">
@@ -372,7 +544,7 @@ const ActivitiesPage: React.FC = () => {
                     >
                       <div className="flex flex-col gap-4 md:flex-row">
                         {/* Proof Image */}
-                        <div className="md:w-48">
+                        <div className="md:w-48 flex-shrink-0">
                           <img
                             src={activity.proofImage}
                             alt={activity.title}
@@ -383,14 +555,14 @@ const ActivitiesPage: React.FC = () => {
                         {/* Activity Details */}
                         <div className="flex-1">
                           <div className="mb-3 flex items-start justify-between gap-4">
-                            <div>
+                            <div className="flex-1">
                               <div className="mb-1 flex items-center gap-2">
                                 <span className="text-2xl">{activityType?.label.split(' ')[0]}</span>
                                 <h3 className="text-lg font-bold text-gray-900">{activity.title}</h3>
                               </div>
                               <p className="text-sm text-gray-600">{activity.description}</p>
                             </div>
-                            <div className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${getStatusColor(activity.status)}`}>
+                            <div className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap ${getStatusBadgeColor(activity.status)}`}>
                               <span>{getStatusIcon(activity.status)}</span>
                               <span className="uppercase">{activity.status}</span>
                             </div>
@@ -402,6 +574,12 @@ const ActivitiesPage: React.FC = () => {
                                 <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                               </svg>
                               <span className="font-semibold text-gray-900">{activity.credits} Credits</span>
+                              {activity.status === 'verified' && (
+                                <span className="text-green-600">✓ Earned</span>
+                              )}
+                              {activity.status === 'unverified' && (
+                                <span className="text-red-600">Not earned</span>
+                              )}
                             </div>
                             <div className="flex items-center gap-2">
                               <svg className="h-4 w-4 text-gray-400" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
@@ -418,6 +596,12 @@ const ActivitiesPage: React.FC = () => {
                               </div>
                             )}
                           </div>
+                          {activity.adminNotes && (
+                            <div className="mt-3 rounded-lg bg-gray-100 p-3">
+                              <p className="text-xs font-semibold text-gray-700">Admin Note:</p>
+                              <p className="text-sm text-gray-600">{activity.adminNotes}</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -428,21 +612,31 @@ const ActivitiesPage: React.FC = () => {
           </div>
 
           {/* Redeem Products CTA */}
-          <div className="mt-12 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 p-8 text-center text-white">
-            <h3 className="mb-2 text-2xl font-bold">Ready to Redeem Your Credits?</h3>
-            <p className="mb-6 text-emerald-100">
-              Use your {totalCredits} credits to purchase eco-friendly products
-            </p>
-            <a
-              href="/products"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-emerald-600 transition-all hover:scale-105 hover:shadow-lg"
-            >
-              Browse Products
-              <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-              </svg>
-            </a>
-          </div>
+          {totalCredits > 0 && (
+            <div className="mt-12 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 p-8 text-center text-white">
+              <h3 className="mb-2 text-2xl font-bold">Ready to Redeem Your Credits?</h3>
+              <p className="mb-6 text-emerald-100">
+                You have {totalCredits} credits available to purchase eco-friendly products
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => setShowProducts(true)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-emerald-600 transition-all hover:scale-105 hover:shadow-lg"
+                >
+                  Browse Products
+                  <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </button>
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-2 rounded-xl border-2 border-white px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10"
+                >
+                  View All Products
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
@@ -452,4 +646,3 @@ const ActivitiesPage: React.FC = () => {
 };
 
 export default ActivitiesPage;
-
