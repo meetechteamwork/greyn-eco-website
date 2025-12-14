@@ -8,6 +8,11 @@ import { useAuth } from '../../context/AuthContext';
 const Header: React.FC = () => {
   const router = useRouter();
   const { isAuthenticated, isENGO, isSimpleUser, user } = useAuth();
+  
+  // Debug: Log ENGO status (remove after testing)
+  useEffect(() => {
+    console.log('Header - isENGO:', isENGO, 'user role:', user?.role);
+  }, [isENGO, user?.role]);
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [showENGOMenu, setShowENGOMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -17,11 +22,12 @@ const Header: React.FC = () => {
   const isAdmin = false; // Can be enabled if needed
 
   // Base navigation links (visible to all)
+  // Dashboard routes to ENGO dashboard for ENGO users, simple dashboard for simple users
   const baseNavLinks = [
     { label: 'Home', href: '/' },
     { label: 'Projects', href: '/projects' },
     { label: 'Products', href: '/products' },
-    { label: 'Dashboard', href: '/dashboard' }
+    { label: 'Dashboard', href: isENGO ? '/engo/dashboard' : '/dashboard' }
   ];
 
   // Activity Bar link (only for simple users)
@@ -93,16 +99,22 @@ const Header: React.FC = () => {
         {/* Navigation Links */}
         <nav aria-label="Main navigation" className="hidden flex-1 mx-8 lg:block">
           <ul className="flex items-center justify-center gap-8 md:gap-12 lg:gap-16">
-            {primaryNavLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="relative text-base font-medium text-white transition-colors hover:text-green-200 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-green-300 after:transition-all after:duration-300 hover:after:w-full"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
+            {primaryNavLinks.map((link) => {
+              // Ensure Dashboard link always goes to correct dashboard based on role
+              const href = link.label === 'Dashboard' 
+                ? (isENGO ? '/engo/dashboard' : '/dashboard')
+                : link.href;
+              return (
+                <li key={`${link.label}-${href}`}>
+                  <Link
+                    href={href}
+                    className="relative text-base font-medium text-white transition-colors hover:text-green-200 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-green-300 after:transition-all after:duration-300 hover:after:w-full"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
             
             {/* ENGO Dropdown - Only visible for ENGO users */}
             {isENGO && (
@@ -226,7 +238,7 @@ const Header: React.FC = () => {
                 Profile
               </Link>
               <Link
-                href="/dashboard"
+                href={isENGO ? '/engo/dashboard' : '/dashboard'}
                 className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-green-50 transition-colors"
                 onClick={() => setShowUserMenu(false)}
               >
@@ -411,7 +423,7 @@ const Header: React.FC = () => {
                     </svg>
                   </Link>
                   <Link
-                    href="/dashboard"
+                    href={isENGO ? '/engo/dashboard' : '/dashboard'}
                     className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-800 transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white"
                     onClick={closeMobileMenu}
                   >
