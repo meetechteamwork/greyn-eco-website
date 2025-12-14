@@ -137,13 +137,14 @@ const investorLinePoints = revenueData.map((d, i) => {
   return `${x},${y}`;
 }).join(' ');
 
+// Pre-calculate max values for charts
+const maxFunding = Math.max(...monthlyFundingData.map(d => d.funding));
+const maxRevenue = Math.max(...revenueData.map(d => d.revenue));
+const maxCredits = Math.max(...carbonCreditsData.map(d => d.credits));
+const maxInvestors = Math.max(...revenueData.map(d => d.investors));
+
 const ENGODashboardPage: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<'6M' | '12M' | 'All'>('12M');
-
-  const maxFunding = Math.max(...monthlyFundingData.map(d => d.funding));
-  const maxRevenue = Math.max(...revenueData.map(d => d.revenue));
-  const maxCredits = Math.max(...carbonCreditsData.map(d => d.credits));
-  const maxInvestors = Math.max(...revenueData.map(d => d.investors));
 
   return (
     <ProtectedRoute requiredRole="engo">

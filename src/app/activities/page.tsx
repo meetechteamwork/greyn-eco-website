@@ -646,3 +646,4 @@ const ActivitiesPage: React.FC = () => {
 };
 
 export default ActivitiesPage;
+
