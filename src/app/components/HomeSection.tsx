@@ -2,11 +2,8 @@
 
 import React, { useCallback } from 'react';
 import Link from 'next/link';
-import { useAuth } from '../../context/AuthContext';
 
 const HomeSection: React.FC = React.memo(() => {
-  const { isENGO, isAuthenticated } = useAuth();
-  
   const scrollToAbout = useCallback(() => {
     const aboutSection = document.getElementById('about');
     if (aboutSection) {
@@ -44,7 +41,7 @@ const HomeSection: React.FC = React.memo(() => {
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up-delay-2">
           <Link
-            href={isENGO && !isAuthenticated ? "/auth/engo/signup" : "/auth"}
+            href="/auth"
             className="group relative overflow-hidden rounded-full bg-white px-8 py-4 text-lg font-semibold text-green-700 transition-all duration-300 hover:bg-green-50 hover:shadow-2xl"
             aria-label="Get started with Greyn Eco"
           >

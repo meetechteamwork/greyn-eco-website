@@ -161,7 +161,7 @@ const ProductsPage: React.FC = () => {
           </div>
 
           <div className="mt-8 rounded-[32px] border border-[#dfeee2] bg-[#f5fbf4] p-6 shadow-[0_25px_60px_rgba(26,77,46,0.08)]">
-            <div ref={sliderRef} className="hide-scrollbar overflow-hidden">
+            <div ref={sliderRef} className="slider-scroll overflow-hidden">
               <div className="flex gap-6 py-2 pr-6">
                 {products.map((product) => (
                   <article
@@ -215,6 +215,15 @@ const ProductsPage: React.FC = () => {
       </main>
 
       <Footer />
+
+      <style jsx>{`
+        .slider-scroll {
+          scrollbar-width: none;
+        }
+        .slider-scroll::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };

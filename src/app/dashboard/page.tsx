@@ -88,13 +88,6 @@ const DashboardPage: React.FC = () => {
     { category: 'Other', percentage: 10, amount: 550, color: 'bg-purple-500' }
   ];
 
-  const topPerformers = [
-    { name: 'Solar Energy Farm - California', growth: '+12%', status: 'up' },
-    { name: 'Electric Vehicle Charging Network', growth: '+18%', status: 'up' },
-    { name: 'Wind Power Initiative - Texas', growth: '+9%', status: 'up' },
-    { name: 'Amazon Rainforest Reforestation', growth: '+7%', status: 'up' }
-  ];
-
   const maxInvestment = Math.max(...monthlyData.map(d => d.investments));
   const maxReturns = Math.max(...monthlyData.map(d => d.returns));
 
@@ -199,9 +192,157 @@ const DashboardPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Chart Placeholder */}
+          <div className="mb-12 rounded-2xl bg-white p-8 shadow-lg">
+            <h2 className="mb-6 text-2xl font-bold text-gray-900">Portfolio Performance</h2>
+            <div className="relative h-64 w-full">
+              <svg viewBox="0 0 800 250" className="h-full w-full" preserveAspectRatio="none">
+                {/* Grid Lines */}
+                <line x1="0" y1="0" x2="800" y2="0" stroke="#e5e7eb" strokeWidth="1" />
+                <line x1="0" y1="62.5" x2="800" y2="62.5" stroke="#e5e7eb" strokeWidth="1" />
+                <line x1="0" y1="125" x2="800" y2="125" stroke="#e5e7eb" strokeWidth="1" />
+                <line x1="0" y1="187.5" x2="800" y2="187.5" stroke="#e5e7eb" strokeWidth="1" />
+                <line x1="0" y1="250" x2="800" y2="250" stroke="#e5e7eb" strokeWidth="1" />
+                
+                {/* Performance Line */}
+                <polyline
+                  points="0,200 100,180 200,170 300,150 400,140 500,130 600,110 700,90 800,70"
+                  fill="none"
+                  stroke="url(#gradient)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                
+                {/* Area under curve */}
+                <polygon
+                  points="0,200 100,180 200,170 300,150 400,140 500,130 600,110 700,90 800,70 800,250 0,250"
+                  fill="url(#areaGradient)"
+                  opacity="0.3"
+                />
+                
+                {/* Gradient Definitions */}
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#3b82f6" />
+                  </linearGradient>
+                  <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              
+              {/* X-Axis Labels */}
+              <div className="mt-4 flex justify-between text-xs text-gray-500">
+                <span>Jan</span>
+                <span>Feb</span>
+                <span>Mar</span>
+                <span>Apr</span>
+                <span>May</span>
+                <span>Jun</span>
+                <span>Jul</span>
+                <span>Aug</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Investment List */}
+          <div className="rounded-2xl bg-white p-8 shadow-lg">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-green-500">Portfolio</p>
+                <h2 className="text-2xl font-bold text-gray-900">Your Investments</h2>
+              </div>
+              <Link
+                href="/projects"
+                className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2 text-sm font-semibold text-white transition-all hover:translate-y-[-2px] hover:bg-green-700"
+              >
+                Browse Projects
+                <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Desktop Table */}
+            <div className="hidden md:block">
+              <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
+                <table className="min-w-full table-auto">
+                  <thead className="bg-gray-50">
+                    <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      <th className="px-6 py-4">Project</th>
+                      <th className="px-6 py-4">Investment</th>
+                      <th className="px-6 py-4">Returns</th>
+                      <th className="px-6 py-4">Carbon credits</th>
+                      <th className="px-6 py-4">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white text-sm text-gray-700">
+                    {investments.map((investment) => (
+                      <tr key={investment.id} className="transition-colors hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <Link href={`/projects/${investment.id}`} className="font-semibold text-gray-900 hover:text-green-600">
+                            {investment.projectName}
+                          </Link>
+                        </td>
+                        <td className="px-6 py-4">${investment.amount.toLocaleString()}</td>
+                        <td className="px-6 py-4 font-semibold text-green-600">${investment.returns.toLocaleString()}</td>
+                        <td className="px-6 py-4 font-semibold text-emerald-600">{investment.carbonCredits}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${getStatusColor(investment.status)}`}>
+                            {investment.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="grid gap-4 md:hidden">
+              {investments.map((investment) => (
+                <div key={investment.id} className="rounded-2xl border border-gray-100 p-4 shadow-sm transition-shadow hover:shadow-md">
+                  <div className="mb-3 flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Project</p>
+                      <Link href={`/projects/${investment.id}`} className="text-base font-semibold text-gray-900">
+                        {investment.projectName}
+                      </Link>
+                    </div>
+                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${getStatusColor(investment.status)}`}>
+                      {investment.status}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="rounded-xl bg-gray-50 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Investment</p>
+                      <p className="text-lg font-bold text-gray-900">${investment.amount.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-xl bg-green-50/70 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-green-600">Returns</p>
+                      <p className="text-lg font-bold text-green-600">${investment.returns.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-xl bg-emerald-50/70 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Carbon credits</p>
+                      <p className="text-lg font-bold text-emerald-600">{investment.carbonCredits}</p>
+                    </div>
+                    <div className="rounded-xl bg-gray-50 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Project ID</p>
+                      <p className="text-lg font-bold text-gray-900">#{investment.id}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Analytics Content - Merged for Simple Users */}
           {isSimpleUser && (
-            <div className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-3">
               {/* Main Charts Column */}
               <div className="lg:col-span-2 space-y-8">
                 {/* Investment Growth Chart */}
@@ -316,13 +457,13 @@ const DashboardPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Top Performers */}
+                {/* Top Performing Projects */}
                 <div className="rounded-2xl bg-white p-8 shadow-lg">
                   <h2 className="mb-6 text-2xl font-bold text-gray-900">Top Performing Projects</h2>
                   <div className="space-y-4">
-                    {topPerformers.map((project, index) => (
+                    {investments.slice(0, 4).map((project, index) => (
                       <div
-                        key={index}
+                        key={project.id}
                         className="flex items-center justify-between rounded-lg border border-gray-100 p-4 transition-colors hover:bg-gray-50"
                       >
                         <div className="flex items-center gap-4">
@@ -330,13 +471,13 @@ const DashboardPage: React.FC = () => {
                             {index + 1}
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-900">{project.name}</p>
+                            <p className="font-semibold text-gray-900">{project.projectName}</p>
                             <p className="text-sm text-gray-600">Active project</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-green-600">{project.growth}</p>
-                          <p className="text-xs text-gray-500">Growth</p>
+                          <p className="text-lg font-bold text-green-600">${project.returns.toLocaleString()}</p>
+                          <p className="text-xs text-gray-500">Returns</p>
                         </div>
                       </div>
                     ))}
@@ -401,159 +542,31 @@ const DashboardPage: React.FC = () => {
                     Your portfolio is well-diversified across multiple sustainable sectors with stable returns.
                   </p>
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* Chart Placeholder - For ENGO users */}
-          {!isSimpleUser && (
-            <div className="mb-12 rounded-2xl bg-white p-8 shadow-lg">
-              <h2 className="mb-6 text-2xl font-bold text-gray-900">Portfolio Performance</h2>
-              <div className="relative h-64 w-full">
-                <svg viewBox="0 0 800 250" className="h-full w-full" preserveAspectRatio="none">
-                  {/* Grid Lines */}
-                  <line x1="0" y1="0" x2="800" y2="0" stroke="#e5e7eb" strokeWidth="1" />
-                  <line x1="0" y1="62.5" x2="800" y2="62.5" stroke="#e5e7eb" strokeWidth="1" />
-                  <line x1="0" y1="125" x2="800" y2="125" stroke="#e5e7eb" strokeWidth="1" />
-                  <line x1="0" y1="187.5" x2="800" y2="187.5" stroke="#e5e7eb" strokeWidth="1" />
-                  <line x1="0" y1="250" x2="800" y2="250" stroke="#e5e7eb" strokeWidth="1" />
-                  
-                  {/* Performance Line */}
-                  <polyline
-                    points="0,200 100,180 200,170 300,150 400,140 500,130 600,110 700,90 800,70"
-                    fill="none"
-                    stroke="url(#gradient)"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  
-                  {/* Area under curve */}
-                  <polygon
-                    points="0,200 100,180 200,170 300,150 400,140 500,130 600,110 700,90 800,70 800,250 0,250"
-                    fill="url(#areaGradient)"
-                    opacity="0.3"
-                  />
-                  
-                  {/* Gradient Definitions */}
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#10b981" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                    <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#10b981" />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                
-                {/* X-Axis Labels */}
-                <div className="mt-4 flex justify-between text-xs text-gray-500">
-                  <span>Jan</span>
-                  <span>Feb</span>
-                  <span>Mar</span>
-                  <span>Apr</span>
-                  <span>May</span>
-                  <span>Jun</span>
-                  <span>Jul</span>
-                  <span>Aug</span>
+                {/* Quick Actions */}
+                <div className="rounded-2xl bg-white p-6 shadow-lg">
+                  <h3 className="mb-4 text-xl font-bold text-gray-900">Quick Actions</h3>
+                  <div className="space-y-3">
+                    <Link
+                      href="/projects"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-4 py-3 text-sm font-semibold text-white transition-all hover:shadow-lg"
+                    >
+                      Explore Projects
+                      <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                      </svg>
+                    </Link>
+                    <Link
+                      href="/activities"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                    >
+                      Activity Bar
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           )}
-
-          {/* Investment List */}
-          <div className="rounded-2xl bg-white p-8 shadow-lg">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-green-500">Portfolio</p>
-                <h2 className="text-2xl font-bold text-gray-900">Your Investments</h2>
-              </div>
-              <Link
-                href="/projects"
-                className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-2 text-sm font-semibold text-white transition-all hover:translate-y-[-2px] hover:bg-green-700"
-              >
-                Browse Projects
-                <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </Link>
-            </div>
-
-            {/* Desktop Table */}
-            <div className="hidden md:block">
-              <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
-                <table className="min-w-full table-auto">
-                  <thead className="bg-gray-50">
-                    <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                      <th className="px-6 py-4">Project</th>
-                      <th className="px-6 py-4">Investment</th>
-                      <th className="px-6 py-4">Returns</th>
-                      <th className="px-6 py-4">Carbon credits</th>
-                      <th className="px-6 py-4">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 bg-white text-sm text-gray-700">
-                    {investments.map((investment) => (
-                      <tr key={investment.id} className="transition-colors hover:bg-gray-50">
-                        <td className="px-6 py-4">
-                          <Link href={`/projects/${investment.id}`} className="font-semibold text-gray-900 hover:text-green-600">
-                            {investment.projectName}
-                          </Link>
-                        </td>
-                        <td className="px-6 py-4">${investment.amount.toLocaleString()}</td>
-                        <td className="px-6 py-4 font-semibold text-green-600">${investment.returns.toLocaleString()}</td>
-                        <td className="px-6 py-4 font-semibold text-emerald-600">{investment.carbonCredits}</td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${getStatusColor(investment.status)}`}>
-                            {investment.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Mobile Cards */}
-            <div className="grid gap-4 md:hidden">
-              {investments.map((investment) => (
-                <div key={investment.id} className="rounded-2xl border border-gray-100 p-4 shadow-sm transition-shadow hover:shadow-md">
-                  <div className="mb-3 flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Project</p>
-                      <Link href={`/projects/${investment.id}`} className="text-base font-semibold text-gray-900">
-                        {investment.projectName}
-                      </Link>
-                    </div>
-                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${getStatusColor(investment.status)}`}>
-                      {investment.status}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="rounded-xl bg-gray-50 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Investment</p>
-                      <p className="text-lg font-bold text-gray-900">${investment.amount.toLocaleString()}</p>
-                    </div>
-                    <div className="rounded-xl bg-green-50/70 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-green-600">Returns</p>
-                      <p className="text-lg font-bold text-green-600">${investment.returns.toLocaleString()}</p>
-                    </div>
-                    <div className="rounded-xl bg-emerald-50/70 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Carbon credits</p>
-                      <p className="text-lg font-bold text-emerald-600">{investment.carbonCredits}</p>
-                    </div>
-                    <div className="rounded-xl bg-gray-50 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Project ID</p>
-                      <p className="text-lg font-bold text-gray-900">#{investment.id}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </main>
 

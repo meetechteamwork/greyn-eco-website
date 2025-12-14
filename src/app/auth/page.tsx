@@ -1,22 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext';
 
 const AuthPage: React.FC = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { isENGO, isAuthenticated } = useAuth();
-
-  // Redirect ENGO users to ENGO login page
-  useEffect(() => {
-    if (isENGO && !isAuthenticated) {
-      router.push('/auth/engo/login');
-    }
-  }, [isENGO, isAuthenticated, router]);
 
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -70,7 +61,7 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-start justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 px-4 py-8 md:py-12 relative overflow-auto">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 px-4 py-12 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-green-200/30 rounded-full blur-3xl animate-pulse"></div>
@@ -92,7 +83,7 @@ const AuthPage: React.FC = () => {
       </div>
 
       {/* Main Card Container with 3D Flip Effect */}
-      <div className="relative w-full max-w-md my-8 md:my-12" style={{ perspective: '1000px' }}>
+      <div className="relative w-full max-w-md" style={{ perspective: '1000px' }}>
         <div
           className={`relative w-full transition-transform duration-700 transform-style-3d ${
             isFlipped ? 'rotate-y-180' : ''
@@ -110,11 +101,11 @@ const AuthPage: React.FC = () => {
               WebkitBackfaceVisibility: 'hidden'
             }}
           >
-            <div className="relative bg-white rounded-3xl shadow-2xl overflow-visible">
+            <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden">
               {/* Decorative Header Gradient */}
               <div className="h-2 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
               
-              <div className="p-6 md:p-8 lg:p-10 pb-8 md:pb-10 lg:pb-12">
+              <div className="p-8 md:p-10">
                 {/* Logo and Title */}
                 <div className="text-center mb-8">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 mb-4 shadow-lg">
@@ -276,11 +267,11 @@ const AuthPage: React.FC = () => {
               transform: 'rotateY(180deg)'
             }}
           >
-            <div className="relative bg-white rounded-3xl shadow-2xl overflow-visible">
+            <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden">
               {/* Decorative Header Gradient */}
               <div className="h-2 bg-gradient-to-r from-teal-500 via-emerald-500 to-green-500"></div>
               
-              <div className="p-6 md:p-8 lg:p-10 pb-8 md:pb-10 lg:pb-12">
+              <div className="p-8 md:p-10">
                 {/* Logo and Title */}
                 <div className="text-center mb-8">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 mb-4 shadow-lg">
@@ -487,12 +478,12 @@ const AuthPage: React.FC = () => {
       {/* Back to Home Link */}
       <Link
         href="/"
-        className="fixed top-6 left-4 md:top-8 md:left-8 z-10 flex items-center gap-2 text-gray-700 hover:text-green-600 transition-colors group bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm"
+        className="absolute top-8 left-8 flex items-center gap-2 text-gray-700 hover:text-green-600 transition-colors group"
       >
         <svg className="h-5 w-5 transition-transform group-hover:-translate-x-1" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
           <path d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
-        <span className="font-semibold text-sm md:text-base">Back to Home</span>
+        <span className="font-semibold">Back to Home</span>
       </Link>
     </div>
   );
