@@ -54,32 +54,30 @@ const RoleSwitcher: React.FC = () => {
         </button>
       </div>
 
-      {isENGO && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="text-xs font-semibold text-gray-700 mb-2">ENGO Pages:</p>
-          <div className="flex flex-col gap-1 text-xs">
-            <a href="/engo/dashboard" className="text-blue-600 hover:underline">Dashboard</a>
-            <a href="/engo/details" className="text-blue-600 hover:underline">Details</a>
-            <a href="/engo/person-details" className="text-blue-600 hover:underline">Person Details</a>
-            <a href="/engo/project-details/1" className="text-blue-600 hover:underline">Project Details</a>
-            <a href="/engo/launch" className="text-blue-600 hover:underline">Launch Project</a>
-          </div>
+      <div className="mt-3 pt-3 border-t border-gray-200">
+        <p className="text-xs font-semibold text-gray-700 mb-2">Quick Access:</p>
+        <div className="flex flex-col gap-1 text-xs">
+          {isENGO && (
+            <>
+              <a href="/engo/dashboard" className="text-blue-600 hover:underline">ENGO Dashboard</a>
+              <a href="/engo/details" className="text-blue-600 hover:underline">ENGO Details</a>
+              <a href="/engo/person-details" className="text-blue-600 hover:underline">Person Details</a>
+              <a href="/engo/project-details/1" className="text-blue-600 hover:underline">Project Details</a>
+              <a href="/engo/launch" className="text-blue-600 hover:underline">Launch Project</a>
+            </>
+          )}
+          {isCorporate && (
+            <>
+              <a href="/corporate/dashboard" className="text-blue-600 hover:underline font-medium">Corporate Dashboard</a>
+              <a href="/corporate/emissions" className="text-blue-600 hover:underline">CO₂ Emissions</a>
+              <a href="/corporate/volunteers" className="text-blue-600 hover:underline">Volunteers</a>
+              <a href="/corporate/campaigns" className="text-blue-600 hover:underline">Campaigns</a>
+              <a href="/corporate/reports" className="text-blue-600 hover:underline">ESG Reports</a>
+              <a href="/corporate/employees" className="text-blue-600 hover:underline">Employees</a>
+            </>
+          )}
         </div>
-      )}
-
-      {isCorporate && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="text-xs font-semibold text-gray-700 mb-2">Corporate Pages:</p>
-          <div className="flex flex-col gap-1 text-xs">
-            <a href="/corporate/dashboard" className="text-blue-600 hover:underline">Dashboard</a>
-            <a href="/corporate/emissions" className="text-blue-600 hover:underline">Emissions</a>
-            <a href="/corporate/volunteers" className="text-blue-600 hover:underline">Volunteers</a>
-            <a href="/corporate/campaigns" className="text-blue-600 hover:underline">Campaigns</a>
-            <a href="/corporate/reports" className="text-blue-600 hover:underline">Reports</a>
-            <a href="/corporate/employees" className="text-blue-600 hover:underline">Employees</a>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

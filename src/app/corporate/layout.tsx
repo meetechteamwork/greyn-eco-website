@@ -12,12 +12,20 @@ export default function CorporateLayout({
 }) {
   return (
     <ProtectedRoute allowedRoles={['corporate']}>
-      <div className="min-h-screen bg-gray-50">
+      <div className="flex min-h-screen bg-gray-50">
+        {/* Left Sidebar */}
         <CorporateSidebar />
-        <CorporateTopbar />
-        <main className="ml-64 mt-16 p-6">
-          {children}
-        </main>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Top Header */}
+          <CorporateTopbar />
+
+          {/* Page Content */}
+          <main className="flex-1 overflow-auto">
+            {children}
+          </main>
+        </div>
       </div>
     </ProtectedRoute>
   );

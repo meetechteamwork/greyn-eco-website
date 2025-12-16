@@ -27,8 +27,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // ============================================================
   // MANUAL ROLE SWITCHING - Change this value to test roles
   // ============================================================
-  // Options: 'simple-user' or 'engo'
-  const INITIAL_ROLE: UserRole = 'engo'; // Change to 'engo' to test ENGO role
+  // Options: 'simple-user', 'engo', or 'corporate'
+  const INITIAL_ROLE: UserRole = 'engo'; // Change to test different roles
   
   const [user, setUser] = useState<User | null>({
     id: '1',

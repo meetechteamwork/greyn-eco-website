@@ -26,7 +26,7 @@ interface MonthlyData {
 }
 
 const DashboardPage: React.FC = () => {
-  const { isSimpleUser, isENGO } = useAuth();
+  const { isSimpleUser, isENGO, isCorporate } = useAuth();
   
   // Redirect ENGO users immediately - this page is ONLY for simple users
   useEffect(() => {
@@ -34,10 +34,14 @@ const DashboardPage: React.FC = () => {
       window.location.href = '/engo/dashboard';
       return;
     }
-  }, [isENGO]);
+    if (isCorporate) {
+      window.location.href = '/corporate/dashboard';
+      return;
+    }
+  }, [isENGO, isCorporate]);
   
-  // Don't render anything for ENGO users - they should never see this page
-  if (isENGO) {
+  // Don't render anything for ENGO or Corporate users - they should never see this page
+  if (isENGO || isCorporate) {
     return null;
   }
   
@@ -121,8 +125,8 @@ const DashboardPage: React.FC = () => {
 
   return (
     <ProtectedRoute allowedRoles={['simple-user']}>
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-        <Header />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <Header />
 
       <main className="px-6 py-20 md:py-28">
         <div className="mx-auto max-w-7xl">
@@ -588,7 +592,7 @@ const DashboardPage: React.FC = () => {
 
       <Footer />
       <RoleSwitcher />
-      </div>
+    </div>
     </ProtectedRoute>
   );
 };
