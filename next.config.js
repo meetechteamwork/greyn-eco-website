@@ -11,6 +11,8 @@ const nextConfig = {
       },
     ],
   },
+  // Fix lockfile warning by setting outputFileTracingRoot
+  outputFileTracingRoot: require('path').join(__dirname),
 };
 
 module.exports = nextConfig;
