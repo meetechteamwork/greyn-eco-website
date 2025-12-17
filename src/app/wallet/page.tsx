@@ -11,12 +11,45 @@ interface Transaction {
   amount: number;
   description: string;
   date: string;
-  status: 'completed' | 'pending' | 'failed';
+  status: 'completed' | 'pending' | 'failed' | 'approved' | 'processing';
+  approvedAt?: string;
+  availableAt?: string;
+}
+
+interface WithdrawalRequest {
+  id: string;
+  amount: number;
+  requestedAt: string;
+  status: 'pending_approval' | 'approved' | 'processing' | 'completed' | 'rejected';
+  approvedAt?: string;
+  availableAt?: string;
+  rejectedReason?: string;
 }
 
 const WalletPage: React.FC = () => {
   const [showAddFunds, setShowAddFunds] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
   const [addAmount, setAddAmount] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [bankAccount, setBankAccount] = useState('');
+  
+  // Mock withdrawal requests
+  const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([
+    {
+      id: '1',
+      amount: 500,
+      requestedAt: '2025-01-14T10:00:00Z',
+      status: 'approved',
+      approvedAt: '2025-01-14T14:30:00Z',
+      availableAt: '2025-01-15T14:30:00Z' // 24 hours after approval
+    },
+    {
+      id: '2',
+      amount: 200,
+      requestedAt: '2025-01-15T08:00:00Z',
+      status: 'pending_approval'
+    }
+  ]);
 
   // Placeholder data
   const walletBalance = 2847.50;
@@ -97,6 +130,65 @@ const WalletPage: React.FC = () => {
       setShowAddFunds(false);
     }
   }, [addAmount]);
+
+  const handleWithdraw = useCallback(() => {
+    const amount = parseFloat(withdrawAmount);
+    if (amount > 0 && amount <= availableBalance && bankAccount.trim()) {
+      const newRequest: WithdrawalRequest = {
+        id: Date.now().toString(),
+        amount: amount,
+        requestedAt: new Date().toISOString(),
+        status: 'pending_approval'
+      };
+      setWithdrawalRequests(prev => [newRequest, ...prev]);
+      alert(`Withdrawal request of $${amount} submitted. Waiting for admin approval.`);
+      setWithdrawAmount('');
+      setBankAccount('');
+      setShowWithdraw(false);
+    } else if (amount > availableBalance) {
+      alert('Insufficient balance. Please enter an amount within your available balance.');
+    } else if (!bankAccount.trim()) {
+      alert('Please enter your bank account details.');
+    }
+  }, [withdrawAmount, bankAccount, availableBalance]);
+
+  const getWithdrawalStatusBadge = (request: WithdrawalRequest) => {
+    switch (request.status) {
+      case 'pending_approval':
+        return <span className="text-xs text-yellow-600 font-semibold">⏳ Pending Admin Approval</span>;
+      case 'approved':
+        const approvedDate = request.approvedAt ? new Date(request.approvedAt) : null;
+        const availableDate = request.availableAt ? new Date(request.availableAt) : null;
+        const now = new Date();
+        const hoursRemaining = availableDate && now < availableDate 
+          ? Math.ceil((availableDate.getTime() - now.getTime()) / (1000 * 60 * 60))
+          : 0;
+        
+        if (availableDate && now < availableDate) {
+          return <span className="text-xs text-blue-600 font-semibold">✅ Approved - Available in {hoursRemaining}h</span>;
+        } else {
+          return <span className="text-xs text-green-600 font-semibold">✅ Processing</span>;
+        }
+      case 'processing':
+        return <span className="text-xs text-blue-600 font-semibold">🔄 Processing</span>;
+      case 'completed':
+        return <span className="text-xs text-green-600 font-semibold">✓ Completed</span>;
+      case 'rejected':
+        return <span className="text-xs text-red-600 font-semibold">✗ Rejected</span>;
+      default:
+        return null;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
@@ -213,8 +305,8 @@ const WalletPage: React.FC = () => {
             </button>
 
             <button
-              disabled
-              className="flex items-center justify-center gap-3 rounded-xl bg-gray-200 px-8 py-6 text-lg font-semibold text-gray-400 cursor-not-allowed"
+              onClick={() => setShowWithdraw(true)}
+              className="group flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 px-8 py-6 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
             >
               <svg
                 className="h-6 w-6"
@@ -227,7 +319,7 @@ const WalletPage: React.FC = () => {
               >
                 <path d="M20 12H4"></path>
               </svg>
-              Withdraw (Coming Soon)
+              Withdraw Funds
             </button>
           </div>
 
@@ -281,6 +373,131 @@ const WalletPage: React.FC = () => {
                     Confirm
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Withdraw Modal */}
+          {showWithdraw && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+              <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+                <div className="mb-6 flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-gray-900">Withdraw Funds</h3>
+                  <button
+                    onClick={() => {
+                      setShowWithdraw(false);
+                      setWithdrawAmount('');
+                      setBankAccount('');
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                      <path d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="mb-4 rounded-lg bg-blue-50 p-4">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">Available Balance:</span> ${availableBalance.toLocaleString()}
+                  </p>
+                </div>
+
+                <div className="mb-6">
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Amount ($)
+                  </label>
+                  <input
+                    type="number"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    max={availableBalance}
+                    className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-lg transition-colors focus:border-red-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="mb-6">
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Bank Account Number
+                  </label>
+                  <input
+                    type="text"
+                    value={bankAccount}
+                    onChange={(e) => setBankAccount(e.target.value)}
+                    placeholder="Enter bank account number"
+                    className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-lg transition-colors focus:border-red-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="mb-6 rounded-lg bg-yellow-50 p-4">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">Note:</span> Withdrawal requests require admin approval. 
+                    After approval, funds will be available for withdrawal after 24 hours.
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      setShowWithdraw(false);
+                      setWithdrawAmount('');
+                      setBankAccount('');
+                    }}
+                    className="flex-1 rounded-lg border-2 border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleWithdraw}
+                    className="flex-1 rounded-lg bg-gradient-to-r from-red-600 to-red-700 px-6 py-3 font-semibold text-white transition-all hover:shadow-lg"
+                  >
+                    Submit Request
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Withdrawal Requests */}
+          {withdrawalRequests.length > 0 && (
+            <div className="mb-12 rounded-2xl bg-white p-8 shadow-lg">
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-gray-900">Withdrawal Requests</h2>
+              </div>
+
+              <div className="space-y-4">
+                {withdrawalRequests.map((request) => (
+                  <div
+                    key={request.id}
+                    className="rounded-lg border border-gray-200 bg-gray-50 p-4 transition-colors hover:bg-gray-100"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="mb-2 flex items-center gap-4">
+                          <p className="text-lg font-bold text-gray-900">${request.amount.toLocaleString()}</p>
+                          {getWithdrawalStatusBadge(request)}
+                        </div>
+                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                          <span>Requested: {formatDate(request.requestedAt)}</span>
+                          {request.approvedAt && (
+                            <span>Approved: {formatDate(request.approvedAt)}</span>
+                          )}
+                          {request.availableAt && request.status === 'approved' && (
+                            <span className="font-semibold text-blue-600">
+                              Available: {formatDate(request.availableAt)}
+                            </span>
+                          )}
+                        </div>
+                        {request.rejectedReason && (
+                          <p className="mt-2 text-sm text-red-600">
+                            <span className="font-semibold">Reason:</span> {request.rejectedReason}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

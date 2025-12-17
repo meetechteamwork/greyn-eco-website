@@ -41,7 +41,6 @@ const dummyPersonDetails = {
   ],
   socialLinks: {
     linkedin: 'linkedin.com/in/sarahjohnson',
-    twitter: '@sarahj_eco',
     researchGate: 'researchgate.net/profile/sarah-johnson'
   }
 };
@@ -188,9 +187,6 @@ const PersonDetailsPage: React.FC = () => {
                     <div className="space-y-3">
                       <a href="#" className="flex items-center gap-2 text-sm text-gray-700 hover:text-green-600">
                         <span>LinkedIn</span>
-                      </a>
-                      <a href="#" className="flex items-center gap-2 text-sm text-gray-700 hover:text-green-600">
-                        <span>Twitter</span>
                       </a>
                       <a href="#" className="flex items-center gap-2 text-sm text-gray-700 hover:text-green-600">
                         <span>ResearchGate</span>

@@ -123,13 +123,13 @@ const Header: React.FC = () => {
                 : link.href;
               return (
                 <li key={`${link.label}-${href}`}>
-                  <Link
+                <Link
                     href={href}
-                    className="relative text-base font-medium text-white transition-colors hover:text-green-200 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-green-300 after:transition-all after:duration-300 hover:after:w-full"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
+                  className="relative text-base font-medium text-white transition-colors hover:text-green-200 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-green-300 after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  {link.label}
+                </Link>
+              </li>
               );
             })}
             

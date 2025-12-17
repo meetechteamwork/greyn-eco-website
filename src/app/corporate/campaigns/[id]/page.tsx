@@ -728,9 +728,6 @@ export default function CampaignDetailsPage() {
                 <button className="flex-1 px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors">
                   Facebook
                 </button>
-                <button className="flex-1 px-4 py-2 rounded-lg bg-sky-500 text-white font-semibold hover:bg-sky-600 transition-colors">
-                  Twitter
-                </button>
                 <button className="px-4 py-2 rounded-lg bg-gray-800 text-white font-semibold hover:bg-gray-900 transition-colors">
                   Copy
                 </button>

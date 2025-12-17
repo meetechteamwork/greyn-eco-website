@@ -22,7 +22,7 @@ const dummyProjects: { [key: string]: any } = {
     duration: '10 years',
     location: 'Amazon Basin, Brazil',
     carbonCreditsPerHundred: 2.5,
-    investorCount: 142,
+    donorCount: 142,
     startDate: '2024-01-15',
     milestones: [
       { date: '2024-03-15', title: 'Site Preparation Complete', status: 'completed' },
@@ -49,7 +49,7 @@ const dummyProjects: { [key: string]: any } = {
     duration: '25 years',
     location: 'California, USA',
     carbonCreditsPerHundred: 3.2,
-    investorCount: 215,
+    donorCount: 215,
     startDate: '2024-02-01',
     milestones: [
       { date: '2024-04-01', title: 'Land Acquisition', status: 'completed' },
@@ -125,8 +125,8 @@ const ENGOProjectDetailsPage: React.FC = () => {
                   </div>
                   <div className="mt-4 grid grid-cols-3 gap-4">
                     <div className="rounded-lg bg-green-50 p-4">
-                      <p className="text-sm text-gray-600">Investors</p>
-                      <p className="text-2xl font-bold text-green-700">{project.investorCount}</p>
+                      <p className="text-sm text-gray-600">Donors</p>
+                      <p className="text-2xl font-bold text-green-700">{project.donorCount}</p>
                     </div>
                     <div className="rounded-lg bg-blue-50 p-4">
                       <p className="text-sm text-gray-600">Duration</p>

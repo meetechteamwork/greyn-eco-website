@@ -13,7 +13,7 @@ const dummyENGOAnalytics = {
   pendingApproval: 4,
   completedProjects: 2,
   totalInvestments: 2547890,
-  totalInvestors: 1247,
+  totalDonors: 1247,
   carbonCreditsGenerated: 15847.5,
   revenue: 127394.50,
   growthRate: '+23.5%',
@@ -23,34 +23,34 @@ const dummyENGOAnalytics = {
 
 // Monthly funding data
 const monthlyFundingData = [
-  { month: 'Jan', funding: 85000, projects: 2, investors: 45 },
-  { month: 'Feb', funding: 125000, projects: 3, investors: 78 },
-  { month: 'Mar', funding: 180000, projects: 4, investors: 112 },
-  { month: 'Apr', funding: 240000, projects: 5, investors: 156 },
-  { month: 'May', funding: 320000, projects: 6, investors: 203 },
-  { month: 'Jun', funding: 410000, projects: 7, investors: 267 },
-  { month: 'Jul', funding: 520000, projects: 8, investors: 345 },
-  { month: 'Aug', funding: 650000, projects: 9, investors: 432 },
-  { month: 'Sep', funding: 780000, projects: 10, investors: 521 },
-  { month: 'Oct', funding: 920000, projects: 11, investors: 623 },
-  { month: 'Nov', funding: 1100000, projects: 12, investors: 745 },
-  { month: 'Dec', funding: 1350000, projects: 13, investors: 892 }
+  { month: 'Jan', funding: 85000, projects: 2, donors: 45 },
+  { month: 'Feb', funding: 125000, projects: 3, donors: 78 },
+  { month: 'Mar', funding: 180000, projects: 4, donors: 112 },
+  { month: 'Apr', funding: 240000, projects: 5, donors: 156 },
+  { month: 'May', funding: 320000, projects: 6, donors: 203 },
+  { month: 'Jun', funding: 410000, projects: 7, donors: 267 },
+  { month: 'Jul', funding: 520000, projects: 8, donors: 345 },
+  { month: 'Aug', funding: 650000, projects: 9, donors: 432 },
+  { month: 'Sep', funding: 780000, projects: 10, donors: 521 },
+  { month: 'Oct', funding: 920000, projects: 11, donors: 623 },
+  { month: 'Nov', funding: 1100000, projects: 12, donors: 745 },
+  { month: 'Dec', funding: 1350000, projects: 13, donors: 892 }
 ];
 
-// Revenue and investor growth
+// Revenue and donor growth
 const revenueData = [
-  { month: 'Jan', revenue: 4250, investors: 45 },
-  { month: 'Feb', revenue: 6250, investors: 78 },
-  { month: 'Mar', revenue: 9000, investors: 112 },
-  { month: 'Apr', revenue: 12000, investors: 156 },
-  { month: 'May', revenue: 16000, investors: 203 },
-  { month: 'Jun', revenue: 20500, investors: 267 },
-  { month: 'Jul', revenue: 26000, investors: 345 },
-  { month: 'Aug', revenue: 32500, investors: 432 },
-  { month: 'Sep', revenue: 39000, investors: 521 },
-  { month: 'Oct', revenue: 46000, investors: 623 },
-  { month: 'Nov', revenue: 55000, investors: 745 },
-  { month: 'Dec', revenue: 67500, investors: 892 }
+  { month: 'Jan', revenue: 4250, donors: 45 },
+  { month: 'Feb', revenue: 6250, donors: 78 },
+  { month: 'Mar', revenue: 9000, donors: 112 },
+  { month: 'Apr', revenue: 12000, donors: 156 },
+  { month: 'May', revenue: 16000, donors: 203 },
+  { month: 'Jun', revenue: 20500, donors: 267 },
+  { month: 'Jul', revenue: 26000, donors: 345 },
+  { month: 'Aug', revenue: 32500, donors: 432 },
+  { month: 'Sep', revenue: 39000, donors: 521 },
+  { month: 'Oct', revenue: 46000, donors: 623 },
+  { month: 'Nov', revenue: 55000, donors: 745 },
+  { month: 'Dec', revenue: 67500, donors: 892 }
 ];
 
 // Carbon credits generated
@@ -71,11 +71,11 @@ const carbonCreditsData = [
 
 // Top performing projects
 const topProjects = [
-  { name: 'Amazon Reforestation', funding: 450000, goal: 500000, investors: 234, credits: 4500, progress: 90 },
-  { name: 'Solar Farm California', funding: 380000, goal: 400000, investors: 189, credits: 3800, progress: 95 },
-  { name: 'Wind Power Texas', funding: 320000, goal: 350000, investors: 156, credits: 3200, progress: 91 },
-  { name: 'Ocean Cleanup Initiative', funding: 280000, goal: 300000, investors: 142, credits: 2800, progress: 93 },
-  { name: 'Urban Green Spaces', funding: 250000, goal: 280000, investors: 128, credits: 2500, progress: 89 }
+  { name: 'Amazon Reforestation', funding: 450000, goal: 500000, donors: 234, credits: 4500, progress: 90 },
+  { name: 'Solar Farm California', funding: 380000, goal: 400000, donors: 189, credits: 3800, progress: 95 },
+  { name: 'Wind Power Texas', funding: 320000, goal: 350000, donors: 156, credits: 3200, progress: 91 },
+  { name: 'Ocean Cleanup Initiative', funding: 280000, goal: 300000, donors: 142, credits: 2800, progress: 93 },
+  { name: 'Urban Green Spaces', funding: 250000, goal: 280000, donors: 128, credits: 2500, progress: 89 }
 ];
 
 // Project category distribution
@@ -131,9 +131,9 @@ const revenueLinePoints = revenueData.map((d, i) => {
   return `${x},${y}`;
 }).join(' ');
 
-const investorLinePoints = revenueData.map((d, i) => {
+const donorLinePoints = revenueData.map((d, i) => {
   const x = Math.round(((i / (revenueData.length - 1)) * 380 + 10) * 100) / 100;
-  const y = Math.round((200 - (d.investors / Math.max(...revenueData.map(d => d.investors))) * 180) * 100) / 100;
+  const y = Math.round((200 - (d.donors / Math.max(...revenueData.map(d => d.donors))) * 180) * 100) / 100;
   return `${x},${y}`;
 }).join(' ');
 
@@ -141,7 +141,7 @@ const investorLinePoints = revenueData.map((d, i) => {
 const maxFunding = Math.max(...monthlyFundingData.map(d => d.funding));
 const maxRevenue = Math.max(...revenueData.map(d => d.revenue));
 const maxCredits = Math.max(...carbonCreditsData.map(d => d.credits));
-const maxInvestors = Math.max(...revenueData.map(d => d.investors));
+const maxDonors = Math.max(...revenueData.map(d => d.donors));
 
 const ENGODashboardPage: React.FC = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState<'6M' | '12M' | 'All'>('12M');
@@ -218,7 +218,7 @@ const ENGODashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Total Investors */}
+              {/* Total Donors */}
               <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 via-purple-600 to-pink-600 p-8 text-white shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
                 <div className="absolute right-0 top-0 -mr-12 -mt-12 h-40 w-40 rounded-full bg-white/10"></div>
                 <div className="absolute bottom-0 left-0 -ml-8 -mb-8 h-32 w-32 rounded-full bg-white/5"></div>
@@ -229,9 +229,9 @@ const ENGODashboardPage: React.FC = () => {
                         <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold">Total Investors</h3>
+                    <h3 className="text-lg font-semibold">Total Donors</h3>
                   </div>
-                  <p className="text-5xl font-bold">{dummyENGOAnalytics.totalInvestors.toLocaleString()}</p>
+                  <p className="text-5xl font-bold">{dummyENGOAnalytics.totalDonors.toLocaleString()}</p>
                   <p className="mt-2 text-sm text-purple-100">Active community members</p>
                 </div>
               </div>
@@ -300,12 +300,12 @@ const ENGODashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Revenue & Investor Growth Chart */}
+              {/* Revenue & Donor Growth Chart */}
               <div className="rounded-2xl bg-white p-8 shadow-xl">
                 <div className="mb-6 flex items-center justify-between">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Revenue & Investor Growth</h2>
-                    <p className="text-sm text-gray-600">Platform revenue and investor count</p>
+                    <h2 className="text-2xl font-bold text-gray-900">Revenue & Donor Growth</h2>
+                    <p className="text-sm text-gray-600">Platform revenue and donor count</p>
                   </div>
                   <div className="rounded-lg bg-purple-100 px-3 py-1">
                     <span className="text-sm font-semibold text-purple-700">Growing</span>
@@ -320,20 +320,20 @@ const ENGODashboardPage: React.FC = () => {
                       strokeWidth="3"
                       points={revenueLinePoints}
                     />
-                    {/* Investor line */}
+                    {/* Donor line */}
                     <polyline
                       fill="none"
-                      stroke="url(#investorGradient)"
+                      stroke="url(#donorGradient)"
                       strokeWidth="3"
                       strokeDasharray="5,5"
-                      points={investorLinePoints}
+                      points={donorLinePoints}
                     />
                     <defs>
                       <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stopColor="#3b82f6" />
                         <stop offset="100%" stopColor="#8b5cf6" />
                       </linearGradient>
-                      <linearGradient id="investorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <linearGradient id="donorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stopColor="#10b981" />
                         <stop offset="100%" stopColor="#06b6d4" />
                       </linearGradient>
@@ -347,7 +347,7 @@ const ENGODashboardPage: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="h-3 w-3 rounded-full border-2 border-green-500"></div>
-                    <span className="text-sm text-gray-600">Investors</span>
+                    <span className="text-sm text-gray-600">Donors</span>
                   </div>
                 </div>
               </div>
@@ -411,7 +411,7 @@ const ENGODashboardPage: React.FC = () => {
                             <span className="font-semibold text-gray-900">${(project.funding / 1000).toFixed(0)}k</span> / ${(project.goal / 1000).toFixed(0)}k
                           </span>
                           <span className="text-gray-600">
-                            <span className="font-semibold text-gray-900">{project.investors}</span> investors
+                            <span className="font-semibold text-gray-900">{project.donors}</span> donors
                           </span>
                         </div>
                         <span className="font-semibold text-emerald-600">{project.credits.toLocaleString()} credits</span>
