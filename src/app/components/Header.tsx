@@ -7,12 +7,12 @@ import { useAuth } from '../../context/AuthContext';
 
 const Header: React.FC = () => {
   const router = useRouter();
-  const { isAuthenticated, isENGO, isSimpleUser, isCorporate, isCarbon, user } = useAuth();
+  const { isAuthenticated, isENGO, isSimpleUser, isCorporate, isCarbon, isAdmin, user } = useAuth();
   
   // Debug: Log role status (remove after testing)
   useEffect(() => {
-    console.log('Header - Role:', user?.role, 'isENGO:', isENGO, 'isCorporate:', isCorporate, 'isCarbon:', isCarbon);
-  }, [isENGO, isCorporate, isCarbon, user?.role]);
+    console.log('Header - Role:', user?.role, 'isENGO:', isENGO, 'isCorporate:', isCorporate, 'isCarbon:', isCarbon, 'isAdmin:', isAdmin);
+  }, [isENGO, isCorporate, isCarbon, isAdmin, user?.role]);
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [showENGOMenu, setShowENGOMenu] = useState(false);
   const [showCorporateMenu, setShowCorporateMenu] = useState(false);
@@ -20,11 +20,9 @@ const Header: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Legacy admin check (keeping for existing admin pages)
-  const isAdmin = false; // Can be enabled if needed
-
   // Determine dashboard href based on role
   const getDashboardHref = () => {
+    if (isAdmin) return '/admin/overview';
     if (isCarbon) return '/carbon/marketplace';
     if (isCorporate) return '/corporate/dashboard';
     if (isENGO) return '/engo/dashboard';
@@ -49,10 +47,11 @@ const Header: React.FC = () => {
   const primaryNavLinks = [...baseNavLinks, ...activityLink, ...walletLink];
 
   const adminMenuLinks = [
-    { label: 'Admin Dashboard', href: '/admin', icon: '📊' },
+    { label: 'Admin Overview', href: '/admin/overview', icon: '📊' },
     { label: 'Manage Projects', href: '/admin/projects', icon: '📂' },
     { label: 'Manage Users', href: '/admin/users', icon: '👥' },
-    { label: 'Platform Analytics', href: '/admin/analytics', icon: '📈' }
+    { label: 'Platform Analytics', href: '/admin/analytics', icon: '📈' },
+    { label: 'Settings', href: '/admin/settings', icon: '⚙️' }
   ];
 
   const engoMenuLinks = [
@@ -217,6 +216,7 @@ const Header: React.FC = () => {
                     setShowCarbonMenu(!showCarbonMenu);
                     setShowENGOMenu(false);
                     setShowCorporateMenu(false);
+                    setShowAdminMenu(false);
                   }}
                   className="relative flex items-center gap-1 text-base font-medium text-white transition-colors hover:text-green-200 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-green-300 after:transition-all after:duration-300 hover:after:w-full"
                 >
@@ -244,12 +244,17 @@ const Header: React.FC = () => {
               </li>
             )}
 
-            {/* Admin Dropdown - Legacy support */}
+            {/* Admin Dropdown - Only visible for Admin users */}
             {isAdmin && (
               <li className="relative">
                 <button
-                  onClick={() => setShowAdminMenu(!showAdminMenu)}
-                  className="relative flex items-center gap-1 text-base font-medium text-white transition-colors hover:text-green-200 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-green-300 after:transition-all after:duration-300 hover:after:w-full"
+                  onClick={() => {
+                    setShowAdminMenu(!showAdminMenu);
+                    setShowENGOMenu(false);
+                    setShowCorporateMenu(false);
+                    setShowCarbonMenu(false);
+                  }}
+                  className="relative flex items-center gap-1 text-base font-medium text-white transition-colors hover:text-green-200 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-red-300 after:transition-all after:duration-300 hover:after:w-full"
                 >
                   Admin
                   <svg className={`h-4 w-4 transition-transform ${showAdminMenu ? 'rotate-180' : ''}`} fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
@@ -258,12 +263,12 @@ const Header: React.FC = () => {
                 </button>
                 
                 {showAdminMenu && (
-                  <div className="absolute top-full right-0 mt-2 w-56 rounded-lg bg-white shadow-xl py-2">
+                  <div className="absolute top-full right-0 mt-2 w-56 rounded-lg bg-white shadow-xl py-2 z-50">
                     {adminMenuLinks.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-green-50"
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-red-50"
                         onClick={() => setShowAdminMenu(false)}
                       >
                         <span className="text-xl">{item.icon}</span>
@@ -540,7 +545,7 @@ const Header: React.FC = () => {
               </div>
             )}
 
-            {/* Admin Menu - Legacy support */}
+            {/* Admin Menu - Only visible for Admin users */}
             {isAdmin && (
               <div className="space-y-4 border-t border-gray-100 pt-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
@@ -551,17 +556,17 @@ const Header: React.FC = () => {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50/40"
+                      className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-red-200 hover:bg-red-50/40"
                       onClick={closeMobileMenu}
                     >
                       <span className="flex items-center gap-3">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-green-50 text-lg">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-red-100 to-red-50 text-lg">
                           {item.icon}
                         </span>
                         {item.label}
                       </span>
                       <svg
-                        className="h-4 w-4 text-emerald-400"
+                        className="h-4 w-4 text-red-400"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"

@@ -12,7 +12,7 @@ import { useAuth } from '../context/AuthContext';
  * Usage: Import and add <RoleSwitcher /> to any page component
  */
 const RoleSwitcher: React.FC = () => {
-  const { user, switchRole, isENGO, isSimpleUser, isCorporate, isCarbon } = useAuth();
+  const { user, switchRole, isENGO, isSimpleUser, isCorporate, isCarbon, isAdmin } = useAuth();
 
   return (
     <div className="fixed bottom-4 right-4 z-50 rounded-2xl bg-white p-4 shadow-2xl border-2 border-green-500">
@@ -62,6 +62,16 @@ const RoleSwitcher: React.FC = () => {
         >
           Switch to Carbon
         </button>
+        <button
+          onClick={() => switchRole('admin')}
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            isAdmin
+              ? 'bg-red-600 text-white shadow-lg'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          Switch to Admin
+        </button>
       </div>
 
         <div className="mt-3 pt-3 border-t border-gray-200">
@@ -89,6 +99,11 @@ const RoleSwitcher: React.FC = () => {
       {isCarbon && (
             <>
               <a href="/carbon/marketplace" className="text-blue-600 hover:underline font-medium">Carbon Marketplace</a>
+            </>
+          )}
+      {isAdmin && (
+            <>
+              <a href="/admin/overview" className="text-red-600 hover:underline font-medium">Admin Overview</a>
             </>
           )}
         </div>

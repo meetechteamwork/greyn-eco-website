@@ -1,402 +1,425 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
+
+type UserRole = 'simple-user' | 'engo' | 'corporate' | 'carbon' | 'admin';
+type UserStatus = 'active' | 'suspended' | 'pending';
+type PortalAccess = 'Corporate ESG' | 'Carbon Marketplace' | 'NGO Portal' | 'Admin Portal';
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'investor' | 'admin';
-  status: 'active' | 'suspended' | 'pending';
+  role: UserRole;
+  portalAccess: PortalAccess[];
+  status: UserStatus;
   joinDate: string;
-  totalInvested: number;
-  projectsCount: number;
-  verified: boolean;
-  location: string;
+  lastActive: string;
+  avatar?: string;
 }
 
-const AdminUsersPage: React.FC = () => {
-  const [filter, setFilter] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState<string>('');
+export default function AdminUsersPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [portalFilter, setPortalFilter] = useState<string>('all');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showRoleChangeModal, setShowRoleChangeModal] = useState(false);
+  const [userToChangeRole, setUserToChangeRole] = useState<User | null>(null);
 
   // Mock users data
   const allUsers: User[] = [
     {
       id: '1',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      role: 'investor',
+      name: 'Sarah Johnson',
+      email: 'sarah.johnson@example.com',
+      role: 'corporate',
+      portalAccess: ['Corporate ESG'],
       status: 'active',
       joinDate: '2024-01-15',
-      totalInvested: 5500,
-      projectsCount: 4,
-      verified: true,
-      location: 'San Francisco, CA'
+      lastActive: '2 hours ago',
     },
     {
       id: '2',
-      name: 'Sarah Johnson',
-      email: 'sarah.j@example.com',
-      role: 'investor',
+      name: 'Michael Chen',
+      email: 'michael.chen@example.com',
+      role: 'carbon',
+      portalAccess: ['Carbon Marketplace'],
       status: 'active',
       joinDate: '2024-02-20',
-      totalInvested: 12000,
-      projectsCount: 7,
-      verified: true,
-      location: 'New York, NY'
+      lastActive: '15 min ago',
     },
     {
       id: '3',
-      name: 'Michael Chen',
-      email: 'michael.chen@example.com',
-      role: 'investor',
+      name: 'Emma Williams',
+      email: 'emma.williams@example.com',
+      role: 'engo',
+      portalAccess: ['NGO Portal'],
       status: 'active',
       joinDate: '2024-01-08',
-      totalInvested: 8700,
-      projectsCount: 5,
-      verified: true,
-      location: 'Los Angeles, CA'
+      lastActive: '1 day ago',
     },
     {
       id: '4',
-      name: 'Emma Williams',
-      email: 'emma.w@example.com',
-      role: 'investor',
-      status: 'pending',
+      name: 'David Brown',
+      email: 'david.brown@example.com',
+      role: 'corporate',
+      portalAccess: ['Corporate ESG'],
+      status: 'suspended',
       joinDate: '2024-03-15',
-      totalInvested: 0,
-      projectsCount: 0,
-      verified: false,
-      location: 'Chicago, IL'
+      lastActive: '5 days ago',
     },
     {
       id: '5',
-      name: 'David Brown',
-      email: 'david.brown@example.com',
-      role: 'investor',
-      status: 'active',
-      joinDate: '2024-02-01',
-      totalInvested: 25000,
-      projectsCount: 12,
-      verified: true,
-      location: 'Boston, MA'
+      name: 'Lisa Anderson',
+      email: 'lisa.anderson@example.com',
+      role: 'carbon',
+      portalAccess: ['Carbon Marketplace'],
+      status: 'pending',
+      joinDate: '2024-03-18',
+      lastActive: 'Never',
     },
     {
       id: '6',
-      name: 'Lisa Anderson',
-      email: 'lisa.a@example.com',
-      role: 'investor',
-      status: 'suspended',
-      joinDate: '2024-01-25',
-      totalInvested: 3200,
-      projectsCount: 2,
-      verified: true,
-      location: 'Seattle, WA'
+      name: 'James Wilson',
+      email: 'james.wilson@example.com',
+      role: 'admin',
+      portalAccess: ['Admin Portal'],
+      status: 'active',
+      joinDate: '2023-11-01',
+      lastActive: '30 min ago',
     },
     {
       id: '7',
-      name: 'James Wilson',
-      email: 'james.w@example.com',
-      role: 'admin',
+      name: 'Maria Garcia',
+      email: 'maria.garcia@example.com',
+      role: 'simple-user',
+      portalAccess: [],
       status: 'active',
-      joinDate: '2023-11-01',
-      totalInvested: 0,
-      projectsCount: 0,
-      verified: true,
-      location: 'Austin, TX'
+      joinDate: '2024-02-10',
+      lastActive: '3 hours ago',
     },
     {
       id: '8',
-      name: 'Maria Garcia',
-      email: 'maria.g@example.com',
-      role: 'investor',
+      name: 'Robert Taylor',
+      email: 'robert.taylor@example.com',
+      role: 'engo',
+      portalAccess: ['NGO Portal'],
       status: 'active',
-      joinDate: '2024-02-10',
-      totalInvested: 15500,
-      projectsCount: 9,
-      verified: true,
-      location: 'Miami, FL'
+      joinDate: '2024-01-25',
+      lastActive: '1 hour ago',
     },
     {
       id: '9',
-      name: 'Robert Taylor',
-      email: 'robert.t@example.com',
-      role: 'investor',
-      status: 'pending',
-      joinDate: '2024-03-18',
-      totalInvested: 0,
-      projectsCount: 0,
-      verified: false,
-      location: 'Denver, CO'
+      name: 'Jennifer Lee',
+      email: 'jennifer.lee@example.com',
+      role: 'carbon',
+      portalAccess: ['Carbon Marketplace'],
+      status: 'active',
+      joinDate: '2023-12-15',
+      lastActive: '45 min ago',
     },
     {
       id: '10',
-      name: 'Jennifer Lee',
-      email: 'jennifer.lee@example.com',
-      role: 'admin',
+      name: 'Thomas Moore',
+      email: 'thomas.moore@example.com',
+      role: 'corporate',
+      portalAccess: ['Corporate ESG'],
       status: 'active',
-      joinDate: '2023-12-15',
-      totalInvested: 0,
-      projectsCount: 0,
-      verified: true,
-      location: 'Portland, OR'
-    }
+      joinDate: '2024-02-05',
+      lastActive: '12 hours ago',
+    },
   ];
 
-  const filteredUsers = allUsers.filter(user => {
-    const matchesStatusFilter = filter === 'all' || user.status === filter;
-    const matchesRoleFilter = roleFilter === 'all' || user.role === roleFilter;
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          user.location.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatusFilter && matchesRoleFilter && matchesSearch;
+  // Filter users
+  const filteredUsers = allUsers.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    const matchesPortal =
+      portalFilter === 'all' ||
+      user.portalAccess.some((portal) => portal === portalFilter);
+
+    return matchesSearch && matchesStatus && matchesRole && matchesPortal;
   });
 
+  // Stats
   const stats = {
     total: allUsers.length,
-    active: allUsers.filter(u => u.status === 'active').length,
-    pending: allUsers.filter(u => u.status === 'pending').length,
-    suspended: allUsers.filter(u => u.status === 'suspended').length,
-    investors: allUsers.filter(u => u.role === 'investor').length,
-    admins: allUsers.filter(u => u.role === 'admin').length,
-    verified: allUsers.filter(u => u.verified).length
+    active: allUsers.filter((u) => u.status === 'active').length,
+    pending: allUsers.filter((u) => u.status === 'pending').length,
+    suspended: allUsers.filter((u) => u.status === 'suspended').length,
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-700';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'suspended':
-        return 'bg-red-100 text-red-700';
-      default:
-        return 'bg-gray-100 text-gray-700';
+  const getStatusBadge = (status: UserStatus) => {
+    const styles = {
+      active: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700',
+      pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700',
+      suspended: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700',
+    };
+    return styles[status];
+  };
+
+  const getRoleBadge = (role: UserRole) => {
+    const styles = {
+      'simple-user': 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
+      engo: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+      corporate: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+      carbon: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
+      admin: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+    };
+    return styles[role];
+  };
+
+  const getRoleLabel = (role: UserRole) => {
+    const labels = {
+      'simple-user': 'Simple User',
+      engo: 'ENGO',
+      corporate: 'Corporate',
+      carbon: 'Carbon',
+      admin: 'Admin',
+    };
+    return labels[role];
+  };
+
+  const handleViewUser = (user: User) => {
+    setSelectedUser(user);
+    // In a real app, this would navigate to user details page
+    console.log('View user:', user);
+  };
+
+  const handleSuspendUser = (user: User) => {
+    if (confirm(`Are you sure you want to ${user.status === 'suspended' ? 'reactivate' : 'suspend'} ${user.name}?`)) {
+      // In a real app, this would call an API
+      console.log(`${user.status === 'suspended' ? 'Reactivate' : 'Suspend'} user:`, user.id);
     }
   };
 
-  const getRoleBadgeColor = (role: string) => {
-    return role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
+  const handleChangeRole = (user: User) => {
+    setUserToChangeRole(user);
+    setShowRoleChangeModal(true);
   };
 
-  const handleVerify = (userId: string) => {
-    alert(`User ${userId} verified!`);
-  };
-
-  const handleSuspend = (userId: string) => {
-    if (confirm('Are you sure you want to suspend this user?')) {
-      alert(`User ${userId} suspended!`);
+  const handleRoleChangeSubmit = (newRole: UserRole) => {
+    if (userToChangeRole && confirm(`Change ${userToChangeRole.name}'s role to ${getRoleLabel(newRole)}?`)) {
+      // In a real app, this would call an API
+      console.log('Change role:', userToChangeRole.id, 'to', newRole);
+      setShowRoleChangeModal(false);
+      setUserToChangeRole(null);
     }
   };
 
-  const handleDelete = (userId: string) => {
-    if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
-      alert(`User ${userId} deleted!`);
-    }
-  };
-
-  const handleRoleChange = (userId: string, newRole: string) => {
-    if (confirm(`Change user ${userId} role to ${newRole}?`)) {
-      alert(`User ${userId} role changed to ${newRole}!`);
-    }
+  const getUserInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <Header />
-
-      <main className="px-6 py-20 md:py-28">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="p-6 md:p-8 lg:p-10">
         <div className="mx-auto max-w-7xl">
           {/* Page Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <Link
-                href="/admin"
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <svg className="h-6 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                  <path d="M15 19l-7-7 7-7"></path>
-                </svg>
-              </Link>
-              <h1 className="text-4xl font-bold text-gray-900 md:text-5xl">
-                User Management
-              </h1>
-              <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                ADMIN
-              </span>
-            </div>
-            <p className="text-lg text-gray-600 ml-9">
-              Manage user accounts, permissions, and verification
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent mb-2">
+              User Management
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-slate-400">
+              Manage user accounts, roles, and portal access permissions
             </p>
           </div>
 
           {/* Stats Cards */}
-          <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="rounded-xl bg-white p-4 shadow">
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-sm font-medium text-gray-600">Total Users</p>
+          <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 p-6">
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.total}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-slate-400">Total Users</p>
             </div>
-            <div className="rounded-xl bg-white p-4 shadow">
-              <p className="text-2xl font-bold text-green-600">{stats.active}</p>
-              <p className="text-sm font-medium text-gray-600">Active</p>
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 p-6">
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mb-1">{stats.active}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-slate-400">Active</p>
             </div>
-            <div className="rounded-xl bg-white p-4 shadow">
-              <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
-              <p className="text-sm font-medium text-gray-600">Pending</p>
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 p-6">
+              <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mb-1">{stats.pending}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-slate-400">Pending</p>
             </div>
-            <div className="rounded-xl bg-white p-4 shadow">
-              <p className="text-2xl font-bold text-blue-600">{stats.verified}</p>
-              <p className="text-sm font-medium text-gray-600">Verified</p>
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 p-6">
+              <p className="text-3xl font-bold text-red-600 dark:text-red-400 mb-1">{stats.suspended}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-slate-400">Suspended</p>
             </div>
           </div>
 
           {/* Filters and Search */}
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center">
-            <div className="relative flex-1 max-w-md">
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 pl-12 transition-colors focus:border-green-500 focus:outline-none"
-              />
-              <svg
-                className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
+          <div className="mb-6 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 p-6">
+            <div className="flex flex-col lg:flex-row gap-4">
+              {/* Search */}
+              <div className="flex-1">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                      <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name or email..."
+                    className="block w-full pl-12 pr-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-3">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                >
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="pending">Pending</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  className="px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="simple-user">Simple User</option>
+                  <option value="engo">ENGO</option>
+                  <option value="corporate">Corporate</option>
+                  <option value="carbon">Carbon</option>
+                  <option value="admin">Admin</option>
+                </select>
+
+                <select
+                  value={portalFilter}
+                  onChange={(e) => setPortalFilter(e.target.value)}
+                  className="px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                >
+                  <option value="all">All Portals</option>
+                  <option value="Corporate ESG">Corporate ESG</option>
+                  <option value="Carbon Marketplace">Carbon Marketplace</option>
+                  <option value="NGO Portal">NGO Portal</option>
+                  <option value="Admin Portal">Admin Portal</option>
+                </select>
+              </div>
             </div>
-
-            <div className="flex gap-4">
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="rounded-lg border-2 border-gray-300 px-4 py-3 transition-colors focus:border-green-500 focus:outline-none"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="pending">Pending</option>
-                <option value="suspended">Suspended</option>
-              </select>
-
-              <select
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-                className="rounded-lg border-2 border-gray-300 px-4 py-3 transition-colors focus:border-green-500 focus:outline-none"
-              >
-                <option value="all">All Roles</option>
-                <option value="investor">Investors</option>
-                <option value="admin">Admins</option>
-              </select>
-            </div>
-
-            <button className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-6 py-3 font-semibold text-white transition-all hover:shadow-lg whitespace-nowrap">
-              <svg className="h-5 w-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-              </svg>
-              Invite User
-            </button>
           </div>
 
           {/* Users Table */}
-          <div className="rounded-2xl bg-white shadow-lg overflow-hidden">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-slate-900/50 border-b border-gray-200 dark:border-slate-700">
                   <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">User</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Role</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Joined</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Investments</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Projects</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">Name</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">Email</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">Role</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">Portal Access</th>
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">Status</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
                   {filteredUsers.map((user) => (
-                    <tr key={user.id} className="transition-colors hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                    <tr
+                      key={user.id}
+                      className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
+                    >
+                      {/* Name */}
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-green-600 text-sm font-bold text-white">
-                            {user.name.split(' ').map(n => n[0]).join('')}
+                          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-sm font-bold text-white shadow-md">
+                            {getUserInitials(user.name)}
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-900 flex items-center gap-2">
-                              {user.name}
-                              {user.verified && (
-                                <svg className="h-4 w-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                              )}
-                            </p>
-                            <p className="text-sm text-gray-600">{user.email}</p>
-                            <p className="text-xs text-gray-500">{user.location}</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{user.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-slate-400">Joined {new Date(user.joinDate).toLocaleDateString()}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
-                          {user.role}
+
+                      {/* Email */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <p className="text-sm text-gray-900 dark:text-white">{user.email}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">Last active: {user.lastActive}</p>
+                      </td>
+
+                      {/* Role */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadge(user.role)}`}>
+                          {getRoleLabel(user.role)}
                         </span>
                       </td>
+
+                      {/* Portal Access */}
                       <td className="px-6 py-4">
-                        <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(user.status)}`}>
-                          {user.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-gray-700">{new Date(user.joinDate).toLocaleDateString()}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm font-semibold text-gray-900">
-                          {user.totalInvested > 0 ? `$${user.totalInvested.toLocaleString()}` : '-'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-gray-700">{user.projectsCount || '-'}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          {!user.verified && user.status === 'pending' && (
-                            <button
-                              onClick={() => handleVerify(user.id)}
-                              className="rounded-lg bg-blue-100 p-2 text-blue-700 transition-colors hover:bg-blue-200"
-                              title="Verify User"
-                            >
-                              <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                              </svg>
-                            </button>
+                        <div className="flex flex-wrap gap-2">
+                          {user.portalAccess.length > 0 ? (
+                            user.portalAccess.map((portal, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700"
+                              >
+                                {portal}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-400 dark:text-slate-500 italic">No portal access</span>
                           )}
-                          {user.status === 'active' && (
-                            <button
-                              onClick={() => handleSuspend(user.id)}
-                              className="rounded-lg bg-yellow-100 p-2 text-yellow-700 transition-colors hover:bg-yellow-200"
-                              title="Suspend User"
-                            >
-                              <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                                <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                              </svg>
-                            </button>
-                          )}
+                        </div>
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(user.status)}`}>
+                          {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                        </span>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => handleDelete(user.id)}
-                            className="rounded-lg bg-red-100 p-2 text-red-700 transition-colors hover:bg-red-200"
-                            title="Delete User"
+                            onClick={() => handleViewUser(user)}
+                            className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            title="View User"
                           >
-                            <svg className="h-4 w-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            <svg className="w-5 h-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                              <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                              <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleSuspendUser(user)}
+                            className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
+                            title={user.status === 'suspended' ? 'Reactivate User' : 'Suspend User'}
+                          >
+                            <svg className="w-5 h-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                              {user.status === 'suspended' ? (
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                              ) : (
+                                <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                              )}
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleChangeRole(user)}
+                            className="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-700 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                            title="Change Role"
+                          >
+                            <svg className="w-5 h-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                              <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                           </button>
                         </div>
@@ -409,64 +432,59 @@ const AdminUsersPage: React.FC = () => {
 
             {filteredUsers.length === 0 && (
               <div className="py-16 text-center">
-                <p className="text-gray-500">No users found matching your criteria</p>
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                </svg>
+                <p className="mt-4 text-sm font-medium text-gray-900 dark:text-white">No users found</p>
+                <p className="mt-2 text-sm text-gray-500 dark:text-slate-400">Try adjusting your search or filters</p>
               </div>
             )}
           </div>
+        </div>
+      </div>
 
-          {/* Summary Stats */}
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="rounded-2xl bg-white p-6 shadow-lg">
-              <h3 className="mb-4 text-lg font-bold text-gray-900">Role Distribution</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Investors</span>
-                  <span className="font-bold text-blue-700">{stats.investors}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Admins</span>
-                  <span className="font-bold text-purple-700">{stats.admins}</span>
-                </div>
-              </div>
+      {/* Change Role Modal */}
+      {showRoleChangeModal && userToChangeRole && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-200 dark:border-slate-700">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Change User Role</h3>
+              <button
+                onClick={() => {
+                  setShowRoleChangeModal(false);
+                  setUserToChangeRole(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
             </div>
-
-            <div className="rounded-2xl bg-white p-6 shadow-lg">
-              <h3 className="mb-4 text-lg font-bold text-gray-900">Status Breakdown</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Active</span>
-                  <span className="font-bold text-green-700">{stats.active}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Pending</span>
-                  <span className="font-bold text-yellow-700">{stats.pending}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Suspended</span>
-                  <span className="font-bold text-red-700">{stats.suspended}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-gradient-to-br from-green-50 to-blue-50 p-6">
-              <h3 className="mb-4 text-lg font-bold text-gray-900">Quick Actions</h3>
-              <div className="space-y-2">
-                <button className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-white">
-                  Export User Data
+            <p className="text-sm text-gray-600 dark:text-slate-400 mb-6">
+              Change role for <span className="font-semibold text-gray-900 dark:text-white">{userToChangeRole.name}</span>
+            </p>
+            <div className="space-y-2 mb-6">
+              {(['simple-user', 'engo', 'corporate', 'carbon', 'admin'] as UserRole[]).map((role) => (
+                <button
+                  key={role}
+                  onClick={() => handleRoleChangeSubmit(role)}
+                  className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
+                    userToChangeRole.role === role
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                      : 'border-gray-200 dark:border-slate-700 hover:border-red-300 dark:hover:border-red-700'
+                  }`}
+                >
+                  <span className="font-semibold text-gray-900 dark:text-white">{getRoleLabel(role)}</span>
+                  {userToChangeRole.role === role && (
+                    <span className="ml-2 text-xs text-red-600 dark:text-red-400">(Current)</span>
+                  )}
                 </button>
-                <button className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-white">
-                  Send Bulk Email
-                </button>
-              </div>
+              ))}
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
+      )}
     </div>
   );
-};
-
-export default AdminUsersPage;
-
+}
