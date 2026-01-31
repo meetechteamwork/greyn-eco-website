@@ -1,0 +1,43 @@
+build a web app payment flow using stripe with carbon credit calculation.
+
+requirements:
+
+integrate stripe card payments using payment intents
+
+frontend uses stripe.js and does not store card details
+
+backend creates payment intent and returns client_secret
+
+handle stripe webhook for payment_intent.succeeded
+
+on successful payment, calculate carbon credits
+
+carbon logic:
+
+1 usd = 10 co2 units
+
+example: $25 payment = 250 co2 units
+
+after payment success:
+
+calculate carbon credits on backend
+
+store payment amount and carbon units in database
+
+update user carbon ledger
+
+show user a report:
+
+amount paid
+
+total carbon co2 units earned
+
+focus on:
+
+secure stripe integration
+
+clean backend logic
+
+webhook based confirmation
+
+simple user report display
